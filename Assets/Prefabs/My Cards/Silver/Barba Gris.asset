@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 719ee4846b394fa4a803e7bd3d54e73e, type: 3}
+  m_Name: Barba Gris
+  m_EditorClassIdentifier: 
+  number: 50
+  name: Barba Gris
+  description: Domina el poder de la voz .Capaz de con su Thum hacer que tiemble
+    la tierra
+  imagen: {fileID: 7767016860909812924, guid: 4b357f671f30d374bbd5f410ade03d6e, type: 3}
+  power: 14
+  life: 7
+  type: Mago
+  level: Silver
