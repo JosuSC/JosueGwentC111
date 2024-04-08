@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 719ee4846b394fa4a803e7bd3d54e73e, type: 3}
+  m_Name: Ejercito Daedra
+  m_EditorClassIdentifier: 
+  number: 4
+  name: Ejercito de Daedras
+  description: Temibles guerreros que vienen deesde Oblivion
+  imagen: {fileID: -3174230442665196276, guid: 12f7426b7cd840449a85553324846617, type: 3}
+  power: 12
+  life: 11
+  type: Guerrero
+  level: Simple

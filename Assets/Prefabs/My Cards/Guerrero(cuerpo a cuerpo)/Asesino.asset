@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 719ee4846b394fa4a803e7bd3d54e73e, type: 3}
+  m_Name: Asesino
+  m_EditorClassIdentifier: 
+  number: 16
+  name: Hermandad Oscura
+  description: Explendido asesino
+  imagen: {fileID: 0}
+  power: 6
+  life: 3
+  type: Guerrero
+  level: Simple
