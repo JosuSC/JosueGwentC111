@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   number: 48
   name: Strom Dragon
-  description: Lanza unpotente rayo
+  description: Lanza un potente rayo
   imagen: {fileID: 5649370770540203073, guid: fd210679afe840e468cb715538a582e5, type: 3}
   power: 16
   life: 14

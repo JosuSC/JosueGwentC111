@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 401797510696203075, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
       propertyPath: m_Name
-      value: Card Variant
+      value: ice gigant
       objectReference: {fileID: 0}
     - target: {fileID: 3266059582741416760, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
       propertyPath: m_Pivot.x
@@ -91,6 +91,22 @@ PrefabInstance:
     - target: {fileID: 3266059582741416760, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5603382499022745380, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 348.0515
+      objectReference: {fileID: 0}
+    - target: {fileID: 5603382499022745380, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 24.296
+      objectReference: {fileID: 0}
+    - target: {fileID: 5603382499022745380, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -30.952515
+      objectReference: {fileID: 0}
+    - target: {fileID: 5603382499022745380, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 6.4422
       objectReference: {fileID: 0}
     - target: {fileID: 7080090556241472924, guid: dcaec5da92df05b48b4dd08601d09123, type: 3}
       propertyPath: card

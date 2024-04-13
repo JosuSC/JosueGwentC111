@@ -14,6 +14,8 @@ public class Card : MonoBehaviour
     public int life;
     public string type;
     public string gerarqui;
+    SpriteRenderer Megacarta;
+    GameObject Gigant;
 
     //costructor
     public Card(int number,string name,string description,int power,int life,string type,string gerarqui) 
@@ -37,6 +39,21 @@ public class Card : MonoBehaviour
     public string Gerarqui { get { return gerarqui; } set { gerarqui = value; } }
 
 
+    private void OnMouseEnter()
+    {
+        Gigant.transform.localScale = new Vector3(5, 5, 5); 
+        Megacarta.sprite = GetComponent<SpriteRenderer>().sprite;  
+    }
 
-   
+    private void OnMouseExit()
+    {
+        Gigant.transform.localScale = Vector3.zero; 
+    }
+
+     void Start()
+    {
+        Gigant = GameObject.Find("Mega Carta");
+        Megacarta = Gigant.GetComponent<SpriteRenderer>();
+        Gigant.transform.localScale = Vector3.zero;
+    }
 }

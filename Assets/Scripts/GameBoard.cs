@@ -7,81 +7,83 @@ using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 public class GameBoard : MonoBehaviour
 {
-    GameObject[] weatherzone = new GameObject[3];
-    GameObject[] aumentozone = new GameObject[3];
-    GameObject[] gzone1 = new GameObject[3];
-    GameObject[] dzone1 = new GameObject[3];
-    GameObject[] azone1 = new GameObject[3];
+    public GameObject[] weatherzone1;
+    public GameObject[] aumentozone1;
+    public GameObject[] gzone1;
+    public GameObject[] dzone1;
+    public GameObject[] azone1;
 
-    GameObject[] gzone2 = new GameObject[3];
-    GameObject[] dzone2 = new GameObject[3];
-    GameObject[] azone2 = new GameObject[3];
-   private GameManager game;
+    public GameObject[] gzone2;
+    public GameObject[] dzone2;
+    public GameObject[] azone2;
+    public GameObject[] weatherzone2;
+    public GameObject[] aumentozone2;
 
+    public GameObject Dovakin;
+    public GameObject Alduin;
+                                                                                            
+    public List<GameObject> cementerio1;
+    public List<GameObject> cementerio2;
+
+    //para llevar cuenta de las filas del player 1
+    public int filag1;
+    public int filaa1;
+    public int filad1;
+
+    //para llevar cuenta de las filas del player 2
+    public int filag2;
+    public int filaa2;
+    public int filad2;
+
+    //cuenta general
+    public int allcount1;
+    public int allcount2;
     public GameBoard()
     {
-           // game = new GameManager();
-    }
-    public void HayClima() 
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            /*
-            if (weatherzone[0] != null)
-            {
-                Clima(gzone1,gzone2,filag1,filag2);
-            }
-            if (weatherzone[1] != null)
-            {
-                Clima(azone1, azone2, filaa1, filaa2);
-
-            }
-            if (weatherzone[2] != null)
-            {
-                Clima(dzone1, dzone2, filad1, filad2);
-
-            }
-            */
-        }
+        weatherzone1 = new GameObject[3];
+        weatherzone2 = new GameObject[3];
+        aumentozone1 = new GameObject[3];
+        aumentozone2 = new GameObject[3];
+        gzone1 = new GameObject[3];
+        dzone1 = new GameObject[3];
+        azone1 = new GameObject[3];
+        gzone2 = new GameObject[3];
+        dzone2 = new GameObject[3];
+        azone2 = new GameObject[3];
+        cementerio1 = new List<GameObject>();
+        cementerio2 = new List<GameObject>();
+        filaa1 = 0;
+        filaa2 = 0;
+        filad1= 0;
+        filad2= 0;
+        filag1 = 0;
+        filaa2 = 0;
+        allcount1= 0;
+        allcount2= 0;
     }
 
-    //efecto clima
-    public void Clima(GameObject[] a, GameObject[] b,int acount,int bcount) 
+    /*necesito
+     *para cartas lider
+     para cementerios
+      para llevar cuenta de cada fila 
+    para llevar cuenta general de cada jugador*/
+
+    //metodo para sumar fila indicada
+    public void SumarFila(int fila, int num)
     {
-        Reducir(a,acount);
-        Reducir(b,bcount);  
+        fila += num;
     }
 
-    public void Aumento() 
+
+    //llevar el conteo total del jugador 1
+    public void Cuenta1()                 
     {
-        
-        for (int i = 0; i < 3; i++)
-        {
-            if (aumentozone[0] != null)
-            {
-                //GameManager.Aumento();
-            }
-            if (aumentozone[1] != null)
-            {
-
-            }
-            if (aumentozone[2] != null)
-            {
-
-            }
-        }
+        allcount1 = filaa1 + filad1 + filag1;
     }
 
-    //reducir el poder de los elementos a 1
-    public void Reducir(GameObject[] row ,int rowcount) 
+   // llevar conteo total de la jugador 2     
+    public void Cuenta2()
     {
-        rowcount = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            if (row[i] != null)
-            {
-                rowcount += 0;
-            }
-        }
+        allcount2 = filaa2 + filag2 + filad2;
     }
 }

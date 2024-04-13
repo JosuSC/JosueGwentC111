@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1397822285439773648, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
       propertyPath: m_Name
-      value: Card Variant
+      value: centurion enano
       objectReference: {fileID: 0}
     - target: {fileID: 4298167569463759787, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
       propertyPath: m_Pivot.x
@@ -91,6 +91,14 @@ PrefabInstance:
     - target: {fileID: 4298167569463759787, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572513216055343031, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 353.2092
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572513216055343031, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -29.2183
       objectReference: {fileID: 0}
     - target: {fileID: 8409627441906267407, guid: 627592ebd3e1b924fad64cfea2f749a5, type: 3}
       propertyPath: card

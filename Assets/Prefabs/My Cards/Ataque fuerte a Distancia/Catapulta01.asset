@@ -15,8 +15,8 @@ MonoBehaviour:
   number: 34
   name: Catapulta
   description: Efectiva para eliminar fuerxas del enemigo
-  imagen: {fileID: -8039044104615360970, guid: df6a55aaa81e40e419f30e3bdc9df141, type: 3}
+  imagen: {fileID: 1813037250363074041, guid: 3415c43d82b821a4593b7882c0037c81, type: 3}
   power: 11
   life: 8
-  type: Arma
+  type: asedio
   level: Mejorado

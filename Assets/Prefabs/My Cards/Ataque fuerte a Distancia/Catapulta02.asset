@@ -15,8 +15,8 @@ MonoBehaviour:
   number: 35
   name: Catapulta
   description: Excelente arma para el combate a distancia
-  imagen: {fileID: 1813037250363074041, guid: b3f8e17748709a240b9ee50460eaaf85, type: 3}
-  power: 12
+  imagen: {fileID: 8870161821495103222, guid: 58c5e212e3a28b341a78f43b9b44f5c5, type: 3}
+  power: 6
   life: 7
-  type: Arma
+  type: asedio
   level: Mejorado

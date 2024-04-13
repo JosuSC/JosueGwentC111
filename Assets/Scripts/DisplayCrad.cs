@@ -31,7 +31,7 @@ public class DisplayCrad : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        displaycard[0] = CardDatabase.CardsList[displaynumber];
+       
     }
 
     // Update is called once per frame
