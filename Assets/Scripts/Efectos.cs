@@ -59,23 +59,11 @@ public class Efectos : MonoBehaviour
         }
     }
 
-    public void Talos(ref int suyo, bool[,] b) 
-    {
-        for (int i = 0; i < b.GetLength(0); i++)
-        {
-            for (int j = 0; j <b.GetLength(1); j++)
-            {
-                
-            }
-        }
-    }
+  
     public void Add(ref int fila  ,int num )
     {
         fila += num;
     }
 
-    public void Clima() 
-    {
-
-    }
+    
 }

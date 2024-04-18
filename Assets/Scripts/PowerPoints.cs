@@ -112,5 +112,7 @@ namespace Assets
             _AllCount2.text = allCount2.ToString();
         }
 
+
+       
     }
 }

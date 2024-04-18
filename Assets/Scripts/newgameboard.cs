@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class newgameboard : MonoBehaviour
 {
-    public GameObject Dovakin;
-    public GameObject Alduin;
+    public Button Dovakin;
+    public Button Alduin;
 
     public int cementerio1 = 0;
     public int cementerio2 = 0; 
