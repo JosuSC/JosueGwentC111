@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: -6473003579072409789}
   - component: {fileID: 2295708322961290641}
   - component: {fileID: 4097879826267104951}
+  - component: {fileID: 4455210356569305600}
   m_Layer: 0
   m_Name: ice atronach
   m_TagString: Untagged
@@ -154,3 +155,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4.94, y: 7.53}
   m_EdgeRadius: 0
+--- !u!114 &4455210356569305600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6839032638011985341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfd8e1774ec75f24d857848196e864a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tablero: {fileID: 0}
+  deck: {fileID: 0}

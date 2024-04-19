@@ -4,62 +4,23 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public static class GameManager 
 {
-    int rondasplayer1 = 0;
-    int rondasplayer2 = 0;
+    static int rondasplayer1 = 0;
+   static  int rondasplayer2 = 0;
    
-    Player player1;
-    Player player2;
-    string acttivo = "";
-    GameBoard board;
-    GameObject game;
-    public CardScript h;
-
-    GameObject cartajugada = new GameObject();
-    CardScript card = new CardScript();
- 
-    Deck deck;
-
-    public GameManager()
-    {
-        this.rondasplayer1 = 0;
-        this.rondasplayer2 = 0;
-      
-        this.player1= new Player();
-        this.player2= new Player();
-        this.deck = new Deck();
-
-     
-      
-        this.board = new GameBoard();
-        //this.game = game;
-        //this.game = game;
-            this.game = null;
-     
-    }
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-
-    }
   
-    
+   
+   
 
-    // Update is called once per frame
-    void Update()
-    {
-        //ver la condiciones A VER QUIEN GANA
-
-        GanarJuego();
+   
 
 
-    }
 
-    public void GanarRonda() 
+
+  
+
+    static  public void GanarRonda() 
     {
         if (PowerPoints.allCount1 > PowerPoints.allCount2)
         {
@@ -74,14 +35,14 @@ public class GameManager : MonoBehaviour
             rondasplayer1 += 1;
             rondasplayer2 += 1;
         }
-    }
-
-    public void CambiarTurno() 
-    {
+        GanarJuego();
+        
 
     }
 
-    public void GanarJuego() 
+   
+
+   static public void GanarJuego() 
     {
         if (rondasplayer1 == 2)
         {

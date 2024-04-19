@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace Assets
         public static void Load(TextMeshProUGUI Filag1, TextMeshProUGUI Filaa1,TextMeshProUGUI Filad1,TextMeshProUGUI Filag2,TextMeshProUGUI Filaa2,TextMeshProUGUI Filad2,TextMeshProUGUI AllCount1,TextMeshProUGUI AllCount2)
         {
             _Filag1 = Filag1;
+            _Filad1 = Filad1;
             _Filaa1= Filaa1;
             _Filag2 = Filag2;
             _Filag2= Filag2;
@@ -57,7 +59,8 @@ namespace Assets
             filaa1 += points;
             _Filaa1.text= filaa1.ToString();    
             allCount1 += points;
-        } 
+        }
+        
         public static void addPointTodistance1(int points)
         {
             filad1 += points;

@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 6363118816676970715}
   - component: {fileID: -8971505269377278673}
   - component: {fileID: 5582666942021757713}
-  - component: {fileID: -8626941272522562174}
-  - component: {fileID: 4260557377248710738}
   - component: {fileID: -8435675893071777007}
   - component: {fileID: -8723734761697619923}
   - component: {fileID: -8133883275583338796}
@@ -112,63 +110,6 @@ MonoBehaviour:
   life: 0
   type: silver
   gerarqui: 
---- !u!114 &-8626941272522562174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1972501472118367576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates:
-  - eventID: 13
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 4260557377248710738}
-          m_TargetAssemblyTypeName: DragDrop, Assembly-CSharp
-          m_MethodName: StarDrag
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - eventID: 14
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 4260557377248710738}
-          m_TargetAssemblyTypeName: DragDrop, Assembly-CSharp
-          m_MethodName: EndDrag
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
---- !u!114 &4260557377248710738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1972501472118367576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1192fc5c56291243b5e29cd168b2bf8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &-8435675893071777007
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -254,3 +195,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd8e1774ec75f24d857848196e864a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tablero: {fileID: 0}
+  deck: {fileID: 0}

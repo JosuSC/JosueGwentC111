@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   number: 0
-  name: 
+  name: mercer frey
   description: 
   imagen: {fileID: 0}
   power: 0
@@ -121,6 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd8e1774ec75f24d857848196e864a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tablero: {fileID: 0}
+  deck: {fileID: 0}
 --- !u!61 &-3691412807312177110
 BoxCollider2D:
   m_ObjectHideFlags: 0

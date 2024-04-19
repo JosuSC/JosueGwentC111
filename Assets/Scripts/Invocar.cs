@@ -19,10 +19,10 @@ public class Invocar : MonoBehaviour
     int totaldecartas2 = 0;
     int totalpower2 = 0;
     int p = 0;
-    TurnSystem turn;
+  
     GameObject totalcards;
     public Deck deck;
-    GameManager manager;
+  
 
     //para despeje
     int despejeg0 =0;
@@ -59,7 +59,7 @@ public class Invocar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        manager.GanarJuego();
+        GameManager.GanarRonda();
     }
 
     public void PonerCarta(string cellName, bool[,] matriz, int cellX, int cellY)
@@ -84,13 +84,13 @@ public class Invocar : MonoBehaviour
             totaldecartas1 += 1;
             totalpower1 += cartaactual.GetComponent<Card>().power;
 
-            deck.Hand1.Remove(cartaactual);
+           // deck.Hand1.Remove(cartaactual);
         }
         else
         {
             totaldecartas2 += 1;
             totalpower2 += cartaactual.GetComponent<Card>().power;
-            deck.Hand2.Remove(cartaactual);
+           // deck.Hand2.Remove(cartaactual);
 
         }
 
@@ -338,6 +338,7 @@ public class Invocar : MonoBehaviour
 
             }
             //puntos
+            Debug.Log("hgh");
             PowerPoints.addPointToWarrior1(cartaactual.GetComponent<Card>().power);
             PowerPoints.Actualizar1();
 
@@ -1537,7 +1538,7 @@ public class Invocar : MonoBehaviour
                 Debug.Log("on");
                 cartaactual = gameObject;
                 Poner();
-                turn.StarPlayer2Turn();
+              
             }
             else if (TurnSystem.IsPlayer2Turn())
             {
@@ -1545,7 +1546,7 @@ public class Invocar : MonoBehaviour
                 cartaactual = gameObject;
                 Poner2();
 
-                turn.StarPlayer1Turn();
+               
             }
 
         }
@@ -1563,7 +1564,7 @@ public class Invocar : MonoBehaviour
                         }
                     }
                 }
-                //ver cuantas cartas van para el cementerio 1
+                //ver cuantas cartas van para el cementerio 2
                 for (int i = 0; i < mask.GetLength(0); i++)
                 {
                     for (int j = 0; j < mask.GetLength(1); j++)
@@ -1590,9 +1591,9 @@ public class Invocar : MonoBehaviour
         if (TurnSystem.SePuedeTeerminarRonda())
         {
             Vaciar();
-            deck.asignar2cartas1(deck.h1p);
-            deck.asignar2cartas2(deck.h2p);
-            manager.GanarRonda();
+           // deck.asignar2cartas1(deck.h1p);
+          //  deck.asignar2cartas2(deck.h2p);
+            GameManager.GanarRonda();
         }
     }
 

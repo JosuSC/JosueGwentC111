@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Analytics;
+using UnityEngine.UIElements;
 using UnityEngine.XR;
 
 public class Deck : MonoBehaviour
@@ -91,10 +92,12 @@ public class Deck : MonoBehaviour
             Transform posicion = position.GetChild(j);
             Debug.Log(posicion.name);
             Debug.Log(position);
-            GameObject newposition = Instantiate(c, posicion.position, Quaternion.identity);
-            float scale = 1f;
-            newposition.transform.localScale = new Vector3(scale, scale, scale);
-
+           // GameObject newposition = Instantiate(c, posicion.position, Quaternion.identity);
+            //float scale = 1f;
+            //newposition.transform.localScale = new Vector3(scale, scale, scale);
+            c.transform.SetParent(posicion);
+            c.transform.position = posicion.position;
+            c.transform.localScale = Vector3.one;
         }
 
         // mostrarlas en el tablero para el jugador 2
@@ -105,10 +108,12 @@ public class Deck : MonoBehaviour
             Transform posicion2 = position2.GetChild(j);
             Debug.Log(posicion2.name);
             Debug.Log(position);
-            GameObject newposition2 = Instantiate(c2, posicion2.position, Quaternion.identity);
+            //GameObject newposition2 = Instantiate(c2, posicion2.position, Quaternion.identity);
             float scale = 1f;
-            newposition2.transform.localScale = new Vector3(scale, scale, scale);
-
+            //newposition2.transform.localScale = new Vector3(scale, scale, scale);
+            c2.transform.SetParent(posicion2);
+            c2.transform.position = posicion2.position;
+            c2.transform.localScale = Vector3.one;
         }
 
        
@@ -145,8 +150,12 @@ public class Deck : MonoBehaviour
         while (n < cantidad)
         {
             aleatorio = Random.Range(0, lista.Count);
-            player.Add(lista[aleatorio]);
+           // player.Add(lista[aleatorio]);
+            player.Add(Instantiate(lista[aleatorio]));
+         //var invovarSc=  lista[aleatorio].GetComponent<Invocar>();
+            //invovarSc.deck = this;
             n++;
+       //var card=     Instantiate(lista[aleatorio]);
         }
     }
 
