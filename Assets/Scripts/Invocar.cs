@@ -19,6 +19,8 @@ public class Invocar : MonoBehaviour
     int totaldecartas2 = 0;
     int totalpower2 = 0;
     int p = 0;
+    static int cementerio1 = 0;
+    static int cementerio2 = 0;
   
     GameObject totalcards;
     public Deck deck;
@@ -59,11 +61,12 @@ public class Invocar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GameManager.GanarRonda();
+ 
     }
 
     public void PonerCarta(string cellName, bool[,] matriz, int cellX, int cellY)
     {
+        
         Debug.Log("Tablero encontrado");
         totalcards = GameObject.Find("CardsTotal");
         if (totalcards != null)
@@ -84,7 +87,7 @@ public class Invocar : MonoBehaviour
             totaldecartas1 += 1;
             totalpower1 += cartaactual.GetComponent<Card>().power;
 
-           // deck.Hand1.Remove(cartaactual);
+      
         }
         else
         {
@@ -838,13 +841,14 @@ public class Invocar : MonoBehaviour
                 }
                 //puntos
                 PowerPoints.addPointToasedio2(cartaactual.GetComponent<Card>().power);
+                PowerPoints.Actualizar2();
             }
         //--------------------------------------------------------------------------clima
         else if (cartaactual.GetComponent<Card>().type == "clima")
         {
             if (mask[0, 0] == false)
             {
-                PonerCarta("clima0", mask, 0, 0);
+                PonerCarta("clima10", mask, 0, 0);
                 PowerPoints.addPointotal2(-PowerPoints.filag2);
                 PowerPoints.filag2 = 0;
                 //fila guererero de ambos jugadores//jugador 2
@@ -896,7 +900,7 @@ public class Invocar : MonoBehaviour
             }
             else if (mask[1, 0] == false)
             {
-                PonerCarta("clima1", mask, 1, 0);
+                PonerCarta("clima11", mask, 1, 0);
 
                 //j2
                 PowerPoints.addPointotal2(-PowerPoints.filaa2);
@@ -957,7 +961,7 @@ public class Invocar : MonoBehaviour
             }
             else if (maskplayer[2, 0] == false)
             {
-                PonerCarta("clima2", mask, 2, 0);
+                PonerCarta("clima12", mask, 2, 0);
 
                 //j2
                 PowerPoints.addPointotal2(-PowerPoints.filad2);
@@ -1550,7 +1554,7 @@ public class Invocar : MonoBehaviour
             }
 
         }
-            public void Vaciar() 
+            public static void Vaciar() 
             {
                 //ver cuantas cartas van para el cementerio 1
                 for (int i = 0; i < maskplayer.GetLength(0); i++)
@@ -1559,7 +1563,7 @@ public class Invocar : MonoBehaviour
                     {
                         if (maskplayer[i,j])
                         {
-                            tablero.cementerio1 += 1;
+                            cementerio1 += 1;
                             maskplayer[i, j] = false;
                         }
                     }
@@ -1571,7 +1575,7 @@ public class Invocar : MonoBehaviour
                     {
                         if (mask[i, j])
                         {
-                            tablero.cementerio2 += 1;
+                            cementerio2 += 1;
                             mask[i, j] = false;
 
                         }
@@ -1586,16 +1590,16 @@ public class Invocar : MonoBehaviour
             }
 
 
-    public void CambiardeRonda() 
-    {
-        if (TurnSystem.SePuedeTeerminarRonda())
-        {
-            Vaciar();
-           // deck.asignar2cartas1(deck.h1p);
-          //  deck.asignar2cartas2(deck.h2p);
-            GameManager.GanarRonda();
-        }
-    }
+    //public void CambiardeRonda() 
+    //{
+    //    if (TurnSystem.SePuedeTeerminarRonda())
+    //    {
+    //        Vaciar();
+    //       // deck.asignar2cartas1(deck.h1p);
+    //      //  deck.asignar2cartas2(deck.h2p);
+    //        GameManager.GanarRonda();
+    //    }
+    //}
 
 
 

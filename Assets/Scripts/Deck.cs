@@ -53,9 +53,11 @@ public class Deck : MonoBehaviour
 
     public List<GameObject> Hand1 = new List<GameObject>();
     public List<GameObject> Hand2 = new List<GameObject>();
-     public GameObject[] h1p = new GameObject[10] ;
-   public GameObject[] h2p = new GameObject[10];
-    
+    public  GameObject[] h1p = new GameObject[10];
+    public  GameObject[] h2p = new GameObject[10];
+    public static List<int> CartasInvocadas;
+    public static List<int> CartasInvocadasRival;
+
 
     // Start is called before the first frame update
 
@@ -92,12 +94,13 @@ public class Deck : MonoBehaviour
             Transform posicion = position.GetChild(j);
             Debug.Log(posicion.name);
             Debug.Log(position);
-           // GameObject newposition = Instantiate(c, posicion.position, Quaternion.identity);
-            //float scale = 1f;
-            //newposition.transform.localScale = new Vector3(scale, scale, scale);
-            c.transform.SetParent(posicion);
-            c.transform.position = posicion.position;
-            c.transform.localScale = Vector3.one;
+            GameObject newposition = Instantiate(c, posicion.position, Quaternion.identity);
+            h1p[j] = newposition;
+            float scale = 1f;
+            newposition.transform.localScale = new Vector3(scale, scale, scale);
+            //c.transform.SetParent(posicion);
+            //c.transform.position = posicion.position;
+            //c.transform.localScale = Vector3.one;
         }
 
         // mostrarlas en el tablero para el jugador 2
@@ -105,15 +108,17 @@ public class Deck : MonoBehaviour
         for (int j = 0; j < Hand2.Count; j++)
         {
             GameObject c2 = Hand2[j];
+           
             Transform posicion2 = position2.GetChild(j);
             Debug.Log(posicion2.name);
             Debug.Log(position);
-            //GameObject newposition2 = Instantiate(c2, posicion2.position, Quaternion.identity);
+            GameObject newposition2 = Instantiate(c2, posicion2.position, Quaternion.identity);
+            h2p[j] = newposition2;
             float scale = 1f;
-            //newposition2.transform.localScale = new Vector3(scale, scale, scale);
-            c2.transform.SetParent(posicion2);
-            c2.transform.position = posicion2.position;
-            c2.transform.localScale = Vector3.one;
+            newposition2.transform.localScale = new Vector3(scale, scale, scale);
+            //c2.transform.SetParent(posicion2);
+            //c2.transform.position = posicion2.position;
+            //c2.transform.localScale = Vector3.one;
         }
 
        
@@ -151,7 +156,7 @@ public class Deck : MonoBehaviour
         {
             aleatorio = Random.Range(0, lista.Count);
            // player.Add(lista[aleatorio]);
-            player.Add(Instantiate(lista[aleatorio]));
+            player.Add(lista[aleatorio]);
          //var invovarSc=  lista[aleatorio].GetComponent<Invocar>();
             //invovarSc.deck = this;
             n++;
@@ -171,7 +176,7 @@ public class Deck : MonoBehaviour
         hand.Add(deck[a]); hand.Add(deck[b]);
     }
 
-    public  void asignar2cartas1(GameObject[] hand1position) 
+    public void asignar2cartas1(GameObject[] hand1position) 
     {
         int n = 0;
         foreach (var position in hand1position) 
@@ -235,6 +240,17 @@ public class Deck : MonoBehaviour
 
 
 
+    }
+    public void VerificarPosition(GameObject cartaactual) 
+    {
+        for (int i = 0; i < h1p.Length; i++)
+        {
+            if (h1p[i] == cartaactual)
+            {
+                Deck.CartasInvocadas.Add(i);
+                Debug.Log(i);
+            }
+        }
     }
 
 

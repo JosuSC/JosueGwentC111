@@ -1,3 +1,4 @@
+using Assets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -64,7 +65,11 @@ public class TurnSystem : MonoBehaviour
 
     public void TerminarRonda() 
     {
+       
+        GameManager.GanarRonda();
         SePuedeTeerminarRonda();
+        Invocar.Vaciar();
+        PowerPoints.ReiniciarCount();
     }
     
 }

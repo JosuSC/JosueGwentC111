@@ -87,7 +87,7 @@ namespace Assets
         public static void addPointToasedio2(int points)
         {
             filaa2 += points;
-            _Filaa1.text = filaa2.ToString();
+            _Filaa2.text = filaa2.ToString();
             allCount2 += points;
         }
         public static void addPointTodistance2(int points)
@@ -115,7 +115,31 @@ namespace Assets
             _AllCount2.text = allCount2.ToString();
         }
 
+        public static void ReiniciarCount() 
+        {
+            _Filag1.text = "0";
+            _Filad1.text = "0";
+            _Filaa1.text = "0";
+            _Filag2.text = "0";
+            _Filag2.text = "0";
+            _Filad2.text = "0";
+            _Filaa2.text = "0";
+            _AllCount1.text = "0";
+            _AllCount2.text  = "0";
+             filag1 = 0;
+             filad1 = 0;
+             filaa1 = 0;
 
-       
+             filag2 = 0;
+             filad2 = 0;
+             filaa2 = 0;
+            allCount1 = 0;
+            allCount2 = 0;
+
+
+
+
     }
+
+}
 }

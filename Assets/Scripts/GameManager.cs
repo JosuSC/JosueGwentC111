@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class GameManager 
 {
@@ -10,16 +11,7 @@ public static class GameManager
    static  int rondasplayer2 = 0;
    
   
-   
-   
-
-   
-
-
-
-
   
-
     static  public void GanarRonda() 
     {
         if (PowerPoints.allCount1 > PowerPoints.allCount2)
@@ -46,12 +38,12 @@ public static class GameManager
     {
         if (rondasplayer1 == 2)
         {
-            //gana el primer jugador
+            SceneManager.LoadScene("Ganador1");
         }
 
         if (rondasplayer2 == 2)
         {
-            //gana el segundo jugador 
+            SceneManager.LoadScene("Ganador1");
         }
     }
 
