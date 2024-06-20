@@ -16,12 +16,24 @@ public class TurnSystem : MonoBehaviour
     public Button EndRonda;
     public static int youturn;
     public static int opponentTurn;
+    public static Deck deck;
+    public Image h1;
+    public Image h2;    
+
+    public TurnSystem()
+    {
+        deck= new Deck();
+    }
 
     private void Start()
     {
         turnText.text = "Tu turno";
         player1Button.interactable = false;
         youturn++;
+
+        Deck.OcultarCartas(deck.Hand2);
+        Deck.MostarCartas(deck.Hand1);
+
     }
 
     public static bool IsPlayer1Turn()
@@ -41,6 +53,11 @@ public class TurnSystem : MonoBehaviour
         turnText.text = "Tu turno";
         player1Button.interactable = false;
         player2Button.interactable = true;
+        youturn++;
+        Deck.OcultarCartas(deck.Hand2);
+        Deck.MostarCartas(deck.Hand1);
+
+
     }
 
     public void StarPlayer2Turn()
@@ -49,6 +66,9 @@ public class TurnSystem : MonoBehaviour
         turnText.text = "Turno del Oponente";
         player1Button.interactable = true;
         player2Button.interactable = false;
+        opponentTurn++;
+        Deck.OcultarCartas(deck.Hand1);
+        Deck.MostarCartas(deck.Hand2);
     }
 
     public static bool SePuedeTeerminarRonda() 
@@ -63,13 +83,19 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    public void TerminarRonda() 
+    public  async void TerminarRonda() 
     {
-       
-        GameManager.GanarRonda();
-        SePuedeTeerminarRonda();
-        Invocar.Vaciar();
-        PowerPoints.ReiniciarCount();
+        if (SePuedeTeerminarRonda())
+        {
+            GameManager.GanarRonda();
+
+            Invocar.Vaciar();
+            PowerPoints.ReiniciarCount();
+            TurnSystem.deck.asignar2cartas1(deck.h1p);
+            TurnSystem.deck.asignar2cartas2(deck.h2p);
+            youturn = 0;
+            opponentTurn = 0;   
+        }
     }
     
 }

@@ -54,16 +54,7 @@ public class GameBoard : MonoBehaviour
     int allcount2;
     public GameBoard()
     {
-    //    weatherzone1 = new GameObject[3];
-    //    weatherzone2 = new GameObject[3];
-    //    aumentozone1 = new GameObject[3];
-    //    aumentozone2 = new GameObject[3];
-    //    gzone1 = new GameObject[3];
-    //    dzone1 = new GameObject[3];
-    //    azone1 = new GameObject[3];
-    //    gzone2 = new GameObject[3];
-    //    dzone2 = new GameObject[3];
-    //    azone2 = new GameObject[3];
+   
         cementerio1 = new List<GameObject>();
         cementerio2 = new List<GameObject>();
         filaa1 = 0;
@@ -77,13 +68,7 @@ public class GameBoard : MonoBehaviour
     }
 
     
-/*
-    //metodo para sumar fila indicada
-    public void SumarFila(ref int fila, int num)
-    {
-        fila += num;
-    }
-*/
+
 
     //llevar el conteo total del jugador 1
     public void Cuenta1()                 

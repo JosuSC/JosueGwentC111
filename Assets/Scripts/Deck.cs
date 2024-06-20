@@ -22,29 +22,11 @@ public class Deck : MonoBehaviour
     public List<GameObject> distancia;
     public List<GameObject> lider;
 
-    ////posiciones  de cartas 1
-    //public GameObject Hand1Position0;
-    //public GameObject Hand1Position1;
-    //public GameObject Hand1Position2;
-    //public GameObject Hand1Position3;
-    //public GameObject Hand1Position4;
-    //public GameObject Hand1Position5;
-    //public GameObject Hand1Position6;
-    //public GameObject Hand1Position7;
-    //public GameObject Hand1Position8;
-    //public GameObject Hand1Position9;
+    //arrays para saber lads posiciones jugadas 
+    public bool[] h1p = new bool[10];
+    public bool[] h2p = new bool[10];
 
-    ////posiciones de las cartas 2
-    //public GameObject Hand2Position0;
-    //public GameObject Hand2Position1;
-    //public GameObject Hand2Position2;
-    //public GameObject Hand2Position3;
-    //public GameObject Hand2Position4;
-    //public GameObject Hand2Position5;
-    //public GameObject Hand2Position6;
-    //public GameObject Hand2Position7;
-    //public GameObject Hand2Position8;
-    //public GameObject Hand2Position9;
+
 
 
     //Lista con las 25 cartas de cada jugador
@@ -53,10 +35,10 @@ public class Deck : MonoBehaviour
 
     public List<GameObject> Hand1 = new List<GameObject>();
     public List<GameObject> Hand2 = new List<GameObject>();
-    public  GameObject[] h1p = new GameObject[10];
-    public  GameObject[] h2p = new GameObject[10];
-    public static List<int> CartasInvocadas;
-    public static List<int> CartasInvocadasRival;
+    //public  GameObject[] h1p = new GameObject[10];
+    //public  GameObject[] h2p = new GameObject[10];
+    //public static List<int> CartasInvocadas;
+    //public static List<int> CartasInvocadasRival;
 
 
     // Start is called before the first frame update
@@ -95,7 +77,7 @@ public class Deck : MonoBehaviour
             Debug.Log(posicion.name);
             Debug.Log(position);
             GameObject newposition = Instantiate(c, posicion.position, Quaternion.identity);
-            h1p[j] = newposition;
+           // h1p[j] = newposition;
             float scale = 1f;
             newposition.transform.localScale = new Vector3(scale, scale, scale);
             //c.transform.SetParent(posicion);
@@ -176,16 +158,18 @@ public class Deck : MonoBehaviour
         hand.Add(deck[a]); hand.Add(deck[b]);
     }
 
-    public void asignar2cartas1(GameObject[] hand1position) 
+    public void asignar2cartas1(bool[] hand1position) 
     {
+
         int n = 0;
-        foreach (var position in hand1position) 
+        for (int i = 0 ; i < hand1position.Length;i++ ) 
         {
+
             if (n == 2)
             {
                 break;
             }
-            if (position != null)
+            if (!hand1position[i])
             {
                 //hay algo
                 continue;
@@ -194,14 +178,23 @@ public class Deck : MonoBehaviour
             {
                 //no hay nada
                 n += 1;
+                Debug.Log("Siiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+
                 //tomar carta
                 GameObject t = PlayerOne[Random.Range(0, PlayerOne.Count)];
-                Hand1.Add(t);
+                Hand1.Insert(i,t);
                 PlayerOne.Remove(t);
                 // ponerla en la posicion vacia
-                t.transform.SetParent(position.transform);
-                t.transform.localScale = Vector3.zero;
-                 
+                //t.transform.SetParent(position.transform);
+                //t.transform.localScale = Vector3.zero;
+                Transform position = transform.Find("Hand1Position");
+                Transform posicion = position.GetChild(i);
+              
+                GameObject newposition = Instantiate(t, posicion.position, Quaternion.identity);
+               
+                float scale = 1f;
+                newposition.transform.localScale = new Vector3(scale, scale, scale);
+
             }
         }
 
@@ -209,16 +202,16 @@ public class Deck : MonoBehaviour
     
     }
 
-    public void asignar2cartas2(GameObject[] hand1position)
+    public void asignar2cartas2(bool[] hand1position)
     {
         int n = 0;
-        foreach (var position in hand1position)
+        for (int i=0;i < hand1position.Length; i++)
         {
             if (n == 2)
             {
                 break;
             }
-            if (position != null)
+            if (! hand1position[i] )
             {
                 //hay algo
                 continue;
@@ -229,31 +222,69 @@ public class Deck : MonoBehaviour
                 n += 1;
                 //tomar carta
                 GameObject t = PlayerTwo[Random.Range(0, PlayerTwo.Count)];
-                Hand1.Add(t);
+                Hand2.Insert(i,t);
                 PlayerTwo.Remove(t);
                 // ponerla en la posicion vacia
-                t.transform.SetParent(position.transform);
-                t.transform.localScale = Vector3.zero;
+                //t.transform.SetParent(position.transform);
+                //t.transform.localScale = Vector3.zero;
+                Transform position = transform.Find("Hand2Position");
+                Transform posicion = position.GetChild(i);
+                Debug.Log(posicion.name);
+                Debug.Log(position);
+                GameObject newposition = Instantiate(t, posicion.position, Quaternion.identity);
 
+                float scale = 1f;
+                newposition.transform.localScale = new Vector3(scale, scale, scale);
+                Debug.Log("Terminoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
             }
         }
 
 
 
     }
-    public void VerificarPosition(GameObject cartaactual) 
+
+    //public s (List<GameObject> Hand2, List<GameObject> PlayerTwo, Transform transform) ReturnReference2()
+    //{
+    //    (List<GameObject> , List<GameObject> PlayerTwo, Transform transform) cosa = (Hand2, PlayerTwo, transform);
+    //    return new; 
+    //}
+    public static void VerificarPosition1(GameObject cartaactual,List<GameObject> Hand1, bool[] h1p) 
     {
-        for (int i = 0; i < h1p.Length; i++)
+        for (int i = 0; i < Hand1.Count; i++)
         {
-            if (h1p[i] == cartaactual)
+            Debug.Log("Javieeeeerrrrrrrrrrrrr");
+            if (Hand1[i] == cartaactual)
             {
-                Deck.CartasInvocadas.Add(i);
-                Debug.Log(i);
+                h1p[i] = true;
             }
         }
     }
 
+    public  void VerificarPosition2(GameObject cartaactual)
+    {
+        for (int i = 0; i < Hand2.Count; i++)
+        {
+            Debug.Log("Josuueeeeeeeeeeeeeeeeeeeee");
+            if (Hand2[i] == cartaactual)
+            {
+                h2p[i] = true;
+            }
+        }
+    }
 
+    public static void OcultarCartas(List<GameObject> h) 
+    {
+        for (int i = 0; i < h.Count; i++)
+        {
+            h[i].SetActive(false);
+        }
+    }
 
-
+    public static void MostarCartas(List<GameObject> h)
+    {
+        for (int i = 0; i < h.Count; i++)
+        {
+            h[i].SetActive(true);
+        }
+    }
 }

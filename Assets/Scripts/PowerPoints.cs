@@ -31,10 +31,15 @@ namespace Assets
         private static TextMeshProUGUI _AllCount2;
 
         public static int allCount1 = 0;    
-        public static int allCount2 = 0;    
-       
+        public static int allCount2 = 0;
 
-        public static void Load(TextMeshProUGUI Filag1, TextMeshProUGUI Filaa1,TextMeshProUGUI Filad1,TextMeshProUGUI Filag2,TextMeshProUGUI Filaa2,TextMeshProUGUI Filad2,TextMeshProUGUI AllCount1,TextMeshProUGUI AllCount2)
+        public static TextMeshProUGUI _Rondas1;
+        public static TextMeshProUGUI _Rondas2;  
+
+        public static int rondas1 = 0;
+        public static int rondas2 = 0;
+
+        public static void Load(TextMeshProUGUI Filag1, TextMeshProUGUI Filaa1,TextMeshProUGUI Filad1,TextMeshProUGUI Filag2,TextMeshProUGUI Filaa2,TextMeshProUGUI Filad2,TextMeshProUGUI AllCount1,TextMeshProUGUI AllCount2,TextMeshProUGUI Rondas1,TextMeshProUGUI Rondas2)
         {
             _Filag1 = Filag1;
             _Filad1 = Filad1;
@@ -45,6 +50,8 @@ namespace Assets
             _Filaa2 = Filaa2;
             _AllCount1 = AllCount1;
             _AllCount2 = AllCount2;
+            _Rondas1 = Rondas1;
+            _Rondas2 = Rondas2;
         }
 
         public static void addPointToWarrior1(int points)
@@ -74,7 +81,6 @@ namespace Assets
             allCount1 += points;
             _AllCount1.text = allCount1.ToString();
          
-
         }
 
         public static void addPointToWarrior2(int points)
@@ -115,7 +121,7 @@ namespace Assets
             _AllCount2.text = allCount2.ToString();
         }
 
-        public static void ReiniciarCount() 
+        public static void ReiniciarCount()
         {
             _Filag1.text = "0";
             _Filad1.text = "0";
@@ -125,21 +131,33 @@ namespace Assets
             _Filad2.text = "0";
             _Filaa2.text = "0";
             _AllCount1.text = "0";
-            _AllCount2.text  = "0";
-             filag1 = 0;
-             filad1 = 0;
-             filaa1 = 0;
+            _AllCount2.text = "0";
+            filag1 = 0;
+            filad1 = 0;
+            filaa1 = 0;
 
-             filag2 = 0;
-             filad2 = 0;
-             filaa2 = 0;
+            filag2 = 0;
+            filad2 = 0;
+            filaa2 = 0;
             allCount1 = 0;
             allCount2 = 0;
 
 
+        
 
+        }
+
+        public static void AddPointToPlayer1() 
+        {
+            rondas1 += 1;
+            _Rondas1.text = rondas1.ToString();
+        }
+
+        public static void AddPointToPlayer2()
+        {
+            rondas2 += 1;
+            _Rondas2.text = rondas2.ToString();
+        }
 
     }
-
-}
 }

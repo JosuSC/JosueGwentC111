@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   number: 0
-  name: Hombre Lobo
+  name: hombre lobo
   description: 
   imagen: {fileID: 0}
   power: 10
@@ -196,4 +196,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tablero: {fileID: 0}
-  deck: {fileID: 0}

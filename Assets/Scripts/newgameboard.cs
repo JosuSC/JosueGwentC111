@@ -35,10 +35,14 @@ public class newgameboard : MonoBehaviour
     public int allcount1 = 0;
     public int allcount2 = 0;
 
+    //cuenta de las rondas
+    public TextMeshProUGUI Rondas1;
+    public TextMeshProUGUI Rondas2;
+
 
     private void Start()
     {
-        PowerPoints.Load(Filag1, Filaa1,Filadi,Filag2,Filaa2,Filad2,AllCount1,AllCount2);
+        PowerPoints.Load(Filag1, Filaa1,Filadi,Filag2,Filaa2,Filad2,AllCount1,AllCount2,Rondas1,Rondas2);
     }
 
     public void SumarFila(ref int fila, int num)

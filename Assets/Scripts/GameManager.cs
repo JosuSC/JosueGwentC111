@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public static class GameManager 
 {
     static int rondasplayer1 = 0;
-   static  int rondasplayer2 = 0;
+    static  int rondasplayer2 = 0;
    
   
   
@@ -17,22 +17,28 @@ public static class GameManager
         if (PowerPoints.allCount1 > PowerPoints.allCount2)
         {
             rondasplayer1 += 1;
+            PowerPoints.AddPointToPlayer1();
+           
         }
         else if (PowerPoints.allCount1 < PowerPoints.allCount2)
         {
             rondasplayer2 += 1;
+            PowerPoints.AddPointToPlayer2();
         }
         else 
         {
             rondasplayer1 += 1;
             rondasplayer2 += 1;
+            PowerPoints.AddPointToPlayer1();
+            PowerPoints.AddPointToPlayer2();
         }
+        PowerPoints.allCount1 = 0;
+        PowerPoints.allCount2 = 0;
+
         GanarJuego();
         
 
     }
-
-   
 
    static public void GanarJuego() 
     {
@@ -43,24 +49,9 @@ public static class GameManager
 
         if (rondasplayer2 == 2)
         {
-            SceneManager.LoadScene("Ganador1");
+            SceneManager.LoadScene("Ganador2");
         }
     }
-
-
-
-
-
-
-    // List<Card> temp = new();
-    // string nombre = "Guh";
-    // var card = temp.First(c => c.Type == nombre);
-    // 
-
-
-   //  h = game.GetComponent<CardScript>();
-  
-
 
 }
 
