@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "KwnP0NVn+XPSm7PNv0zDHo2/8ZTil/bTN4h8gGDUSYL3adPZuuipZRGJAxO61fi3nu2ifxfsScbQCW44v/4Ibw==",
+  "success": true,
+  "projectFilePath": "c:\\Users\\Josue Senarega Claro\\source\\repos\\Skyrim_Interpreter\\Skyrim_Interpreter\\Skyrim_Interpreter.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Josue Senarega Claro\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.15\\microsoft.netcore.app.ref.7.0.15.nupkg.sha512",
+    "C:\\Users\\Josue Senarega Claro\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.15\\microsoft.windowsdesktop.app.ref.7.0.15.nupkg.sha512",
+    "C:\\Users\\Josue Senarega Claro\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.15\\microsoft.aspnetcore.app.ref.7.0.15.nupkg.sha512",
+    "C:\\Users\\Josue Senarega Claro\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\7.0.15\\microsoft.netcore.app.host.win-x64.7.0.15.nupkg.sha512"
+  ],
+  "logs": []
+}
