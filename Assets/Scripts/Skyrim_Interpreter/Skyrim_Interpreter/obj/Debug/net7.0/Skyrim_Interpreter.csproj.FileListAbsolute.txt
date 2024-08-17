@@ -1,0 +1,15 @@
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\bin\Debug\net7.0\Skyrim_Interpreter.exe
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\bin\Debug\net7.0\Skyrim_Interpreter.deps.json
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\bin\Debug\net7.0\Skyrim_Interpreter.runtimeconfig.json
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\bin\Debug\net7.0\Skyrim_Interpreter.dll
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\bin\Debug\net7.0\Skyrim_Interpreter.pdb
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.AssemblyInfoInputs.cache
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.AssemblyInfo.cs
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.csproj.CoreCompileInputs.cache
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.dll
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\refint\Skyrim_Interpreter.dll
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.pdb
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.genruntimeconfig.cache
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\ref\Skyrim_Interpreter.dll
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.csproj.AssemblyReference.cache

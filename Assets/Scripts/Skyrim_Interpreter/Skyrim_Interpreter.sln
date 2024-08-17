@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.5.002.0
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Skyrim_Interpreter", "Skyrim_Interpreter.csproj", "{2113A7E2-5085-43CB-A72C-7DD1EDB7E531}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skyrim_Interpreter", "Skyrim_Interpreter\Skyrim_Interpreter.csproj", "{C06B058B-88C5-4EFF-811E-184855D528E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2113A7E2-5085-43CB-A72C-7DD1EDB7E531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2113A7E2-5085-43CB-A72C-7DD1EDB7E531}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2113A7E2-5085-43CB-A72C-7DD1EDB7E531}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2113A7E2-5085-43CB-A72C-7DD1EDB7E531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C06B058B-88C5-4EFF-811E-184855D528E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C06B058B-88C5-4EFF-811E-184855D528E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C06B058B-88C5-4EFF-811E-184855D528E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C06B058B-88C5-4EFF-811E-184855D528E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4B74DDAC-11ED-4707-B740-BFE8485A65C8}
+		SolutionGuid = {5BA265F4-2B66-44B1-B927-B9A8B3B1FA7E}
 	EndGlobalSection
 EndGlobal
