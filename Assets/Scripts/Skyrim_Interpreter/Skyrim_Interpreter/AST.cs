@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Skyrim_Interpreter
 {
-    
-    public abstract class ASTNode 
+
+    public abstract class ASTNode
     {
         public string Name { get; set; }
         public Token_Type Type { get; set; }//tipo de nodo
@@ -40,37 +40,20 @@ namespace Skyrim_Interpreter
 
     public abstract class ASTnode { }
 
-    public class PlusAST : ASTNode 
+    public class PlusAST : ASTnode
     {
 
-        public Token_Type type { get; set; }
-        public string value { get; set; }
+        public Token_Type type = Token_Type.PLUS;
 
-        public ASTNode LeftChild { get; set; }
-        public ASTNode RightChild { get; set; }
 
-        public PlusAST() : base(Token_Type.PLUS, "+") { }
+        public ASTnode LeftChild { get; set; }
+        public ASTnode RightChild { get; set; }
 
-        public void AddLeft(ASTNode n)
+        public PlusAST(ASTnode left, ASTnode right)
         {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            LeftChild = n;
+            LeftChild = left;
+            RightChild = right;
         }
-
-        public void AddRigth(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            RightChild = n;
-        }
-
     }
 
     // Variables
@@ -79,158 +62,70 @@ namespace Skyrim_Interpreter
         public string value { get; set; }
 
         public IdentifierASTNode(string value) : base(Token_Type.IDENTIFIER, value) { this.value = value; }
-       
+
     }
 
-    public class MinusASTNode : ASTNode
+    public class MinusASTNode : ASTnode
     {
-        public ASTNode LeftChildren { get; set; }
-        public ASTNode RightChildren { get; set; }  
+        Token_Type type = Token_Type.MINUS;
 
-        public MinusASTNode() : base(Token_Type.MINUS, "-") { }
+        public ASTnode LeftChildren { get; set; }
+        public ASTnode RightChildren { get; set; }
 
-        public void AddLeft(ASTNode n) 
+        public MinusASTNode(ASTnode left, ASTnode right)
         {
-            if (n == null)
-            {
-                throw  new ArgumentNullException(nameof(n));
-            }
-
-            LeftChildren = n;
+            LeftChildren = left;
+            RightChildren = right;
         }
-
-        public void AddRigth(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            RightChildren = n;
-        }
-
     }
 
 
-    public class Node  : ASTnode
+    public class Node : ASTnode
     {
         public Token_Type type { get; set; }
         public string Value { get; set; }
-        public  List<Node> Children { get; set;}
+        public List<Node> Children { get; set; }
 
-        public Node(Token_Type type,string value)
+        public Node(Token_Type type, string value)
         {
-            this.type = type;   
-            this.Value = value; 
-            Children= new List<Node>(); 
+            this.type = type;
+            this.Value = value;
+            Children = new List<Node>();
+        }
+
+    }
+    public class PowerASTNode : ASTnode
+    {
+        Token_Type type = Token_Type.POWER;
+        public ASTnode Number { get; set; }
+        public ASTnode Pow { get; set; }
+
+        public PowerASTNode(ASTnode number, ASTnode pow)
+        {
+            this.Number = number;
+            this.Pow = pow;
         }
 
     }
 
-    public class DivideASTNode : ASTNode
+
+
+    public class AndASTNode : ASTnode
     {
-        public ASTNode LeftChildren { get; set;}
-        public ASTNode RightChildren { get; set;}
-
-        public DivideASTNode() : base(Token_Type.DIVIDE , "/") { }
-
-
-        public void AddLeft(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            LeftChildren = n;
-        }
-
-        public void AddRigth(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            RightChildren = n;
-        }
-    }
-
-    public class MultiplyASTNode : ASTNode 
-    {
-        public ASTNode LeftChildren { get; set;}    public ASTNode RightChildren { get; set;}
-
-        public MultiplyASTNode() : base(Token_Type.MULTIPLY , "*") {  }
-
-        public void AddLeft(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            LeftChildren = n;
-        }
-
-        public void AddRigth(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            RightChildren = n;
-        }
-
-    }
-
-    public class PowerASTNode : ASTNode 
-    {
-        public ASTNode Number { get; set;}
-        public ASTNode Pow { get; set;}
-
-        public PowerASTNode() : base(Token_Type.POWER, "^") { }
-
-
-        public void AddNumber(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            Number = n;
-        }
-
-        public void AddPow(ASTNode n)
-        {
-            if (n == null)
-            {
-                throw new ArgumentNullException(nameof(n));
-            }
-
-            Pow = n;
-        }
-    }
-
-
-
-    public class AndASTNode : ASTnode 
-    {
-        public ASTnode left { get; set;}
+        public ASTnode left { get; set; }
         Token_Type token;
-       
-        public ASTnode right { get; set;}
 
-        public AndASTNode(ASTnode left, ASTnode rigth) 
+        public ASTnode right { get; set; }
+
+        public AndASTNode(ASTnode left, ASTnode rigth)
         {
             this.left = left;
-         token = Token_Type.AND;    
+            token = Token_Type.AND;
 
-            this.right = rigth; 
-        } 
+            this.right = rigth;
+        }
 
-     
+
     }
 
 
@@ -241,30 +136,30 @@ namespace Skyrim_Interpreter
 
         public ASTnode right { get; set; }
 
-        public OrASTNode(ASTnode left,ASTnode right) 
+        public OrASTNode(ASTnode left, ASTnode right)
         {
 
-            this.left = left;   
+            this.left = left;
             this.right = right;
-        } 
+        }
 
-       
+
 
     }
 
-    public class NotASTNode : ASTNode 
+    public class NotASTNode : ASTNode
     {
         public ASTNode son { get; set; }
 
-        public NotASTNode() : base(Token_Type.NOT,"!") { }
+        public NotASTNode() : base(Token_Type.NOT, "!") { }
 
-        public void AddSon(ASTNode t) 
+        public void AddSon(ASTNode t)
         {
             if (t == null)
             {
                 throw new ArgumentNullException(nameof(t));
             }
-            son = t;    
+            son = t;
         }
     }
 
@@ -276,29 +171,13 @@ namespace Skyrim_Interpreter
         public ASTnode Right { get; private set; }
 
         public NotEqualASTNode(ASTnode left, ASTnode right)
-            
+
         {
             Left = left;
             Right = right;
         }
 
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
 
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
     }
 
     public class EqualASTNode : ASTnode
@@ -308,11 +187,11 @@ namespace Skyrim_Interpreter
         public ASTnode Right { get; private set; }
 
         public EqualASTNode(ASTnode left, ASTnode right)
-            
+
         {
             Left = left;
             Right = right;
-        }   
+        }
     }
 
     public class AssignASTNode : ASTNode
@@ -346,168 +225,17 @@ namespace Skyrim_Interpreter
         }
     }
 
-    public class GreaterASTNode : ASTNode
+    public class UnaryASTNode : ASTnode
     {
-        public ASTNode Left { get; private set; }
-        public ASTNode Right { get; private set; }
+        public Token_Type Operand { get; set; }
+        public ASTnode Son { get; set; }
 
-        public GreaterASTNode(ASTNode left, ASTNode right)
-            : base(Token_Type.GREATER, ">")
+        public UnaryASTNode(Token_Type type, ASTnode son)
         {
-            Left = left;
-            Right = right;
+            Operand = type;
+            Son = son;
         }
 
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
-
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
-    }
-
-    public class GreaterEqualASTNode : ASTNode
-    {
-        public ASTNode Left { get; private set; }
-        public ASTNode Right { get; private set; }
-
-        public GreaterEqualASTNode(ASTNode left, ASTNode right)
-            : base(Token_Type.GREATER_EQUAL, ">=")
-        {
-            Left = left;
-            Right = right;
-        }
-
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
-
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
-    }
-
-    public class LessASTNode : ASTNode
-    {
-        public ASTNode Left { get; private set; }
-        public ASTNode Right { get; private set; }
-
-        public LessASTNode(ASTNode left, ASTNode right)
-            : base(Token_Type.LESS, "<")
-        {
-            Left = left;
-            Right = right;
-        }
-
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
-
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
-    }
-
-    public class LessEqualASTNode : ASTNode
-    {
-        public ASTNode Left { get; private set; }
-        public ASTNode Right { get; private set; }
-
-        public LessEqualASTNode(ASTNode left, ASTNode right)
-            : base(Token_Type.LESS_EQUAL, "<=")
-        {
-            Left = left;
-            Right = right;
-        }
-
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
-
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
-    }
-
-    public class LambdaASTNode : ASTNode
-    {
-        public ASTNode Parameter { get; private set; }
-        public ASTNode Body { get; private set; }
-
-        public LambdaASTNode(ASTNode parameter, ASTNode body)
-            : base(Token_Type.LAMBDA, "=>")
-        {
-            Parameter = parameter;
-            Body = body;
-        }
-
-        public void AddParameter(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Parameter node cannot be null");
-            }
-            Parameter = node;
-        }
-
-        public void AddBody(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Body node cannot be null");
-            }
-            Body = node;
-        }
-    }
-
-    public class UnaryASTNode : ASTNode
-    {
-        public ASTNode Operand { get; private set; }
-        public string value { get; set; }
-
-        public UnaryASTNode(string value): base(Token_Type.UNARY,value) { this.value = value;  }
-     
     }
 
 
@@ -518,9 +246,9 @@ namespace Skyrim_Interpreter
 
         public Params()
         {
-            param = new List<ASTnode>();   
+            param = new List<ASTnode>();
         }
-  
+
     }
 
 
@@ -532,9 +260,9 @@ namespace Skyrim_Interpreter
     }
 
 
-    public class BlockASTNode 
+    public class BlockASTNode
     {
-        public Params Block { get; set; } 
+        public Params Block { get; set; }
 
     }
 
@@ -542,45 +270,78 @@ namespace Skyrim_Interpreter
     public class IfASTNode
     {
         public ConditionalASTNode conditional { get; set; }
-        public BlockASTNode block{ get; set; }
+        public BlockASTNode block { get; set; }
     }
 
 
     public class ActionASTNode : ASTnode
     {
 
-        public List<ASTnode> parametros { get; set;}
+        public List<ASTnode> parametros { get; set; }
         public List<ASTnode> actions { get; set; }
     }
 
-    public class EffectASTNode 
+    public class EffectASTNode
     {
         public string Name { get; set; }
         public Params Params { get; set; }
-        public ActionASTNode Action { get; set; }  
+        public ActionASTNode Action { get; set; }
         public List<ASTnode> children { get; set; }
         public EffectASTNode()
         {
-            children= new List<ASTnode>();  
+            children = new List<ASTnode>();
         }
     }
 
-    public class ComparationASTNode : ASTnode 
+    public class ComparationASTNode : ASTnode
     {
         Token_Type type { get; set; }
         ASTnode left { get; set; }
         ASTnode right { get; set; }
-        public ComparationASTNode(ASTnode left,Token_Type type,ASTnode right)
+        public ComparationASTNode(ASTnode left, Token_Type type, ASTnode right)
         {
             this.left = left;
-            this.right = right; 
-            this.type= type;    
+            this.right = right;
+            this.type = type;
+        }
+
+    }
+
+    public class ConcatenationASTNode : ASTnode
+    {
+        public Token_Type type = Token_Type.CONCAT;
+        public ASTnode left { get; set; }
+        public ASTnode right { get; set; }
+        public ConcatenationASTNode(ASTnode left, ASTnode right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+    }
+
+    public class FactorASTNode : ASTnode
+    {
+        Token_Type type { get; set; }
+        ASTnode leftchild { get; set; }
+        public ASTnode rightchild { get; set; }
+        public FactorASTNode(ASTnode leftchild, Token_Type type, ASTnode rightchild)
+        {
+            this.type = type;
+            this.leftchild = leftchild;
+            this.rightchild = rightchild;
+        }
+    }
+
+    public class LiteralASTNode : ASTnode   
+    {
+        public Token_Type Type { get; set; }
+        public string value { get; set; }
+        public LiteralASTNode(Token_Type type,string value)
+        {
+            this.Type = type;
+            this.value = value; 
         }
 
     }
 
 }
-
-
-
-

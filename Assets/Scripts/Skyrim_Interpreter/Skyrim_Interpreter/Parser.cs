@@ -118,22 +118,23 @@ namespace Skyrim_Interpreter
         {
             foreach (var item in tokens)
             {
-                CreateNode(item);
+                CreateNode();
             }
 
 
           
         }
 
-        private ASTnode CreateNode(Token item)
+        private ASTnode CreateNode()
         {
             //if (item.Type == Token_Type.KEYWORD)
             //{
             //    //llamar al metodo para keyword
             //    return KeywordNode(item);
             //}
-            
-           return LogicalNode();
+
+           
+            return LogicalNode();
 
         }
 
@@ -263,7 +264,8 @@ namespace Skyrim_Interpreter
                 else { node = new OrASTNode(node, right); }
             }
 
-            return node;
+           return node;
+          
         }
 
         private ASTnode EqualASTNode()
@@ -282,22 +284,102 @@ namespace Skyrim_Interpreter
 
         private ASTnode ComparasionASTNode() 
         {
-           // ASTnode node = StringASTNode();
-            //while (Match(Token_Type.GREATER,Token_Type.GREATER_EQUAL,Token_Type.LESS,Token_Type.LESS_EQUAL)) 
-            //{
-            //   Token comparasion = Previous();  
-            // //  ASTnode right = StringASTNode();
-            //    if (comparasion.Type == Token_Type.GREATER) { node = new ComparationASTNode(node,comparasion.Type,right); }
-            //   else if (comparasion.Type == Token_Type.GREATER_EQUAL) { node = new ComparationASTNode(node,comparasion.Type,right); }
-            //   else  if (comparasion.Type == Token_Type.LESS) { node = new ComparationASTNode(node,comparasion.Type,right); }
-            //   else if (comparasion.Type == Token_Type.LESS_EQUAL) { node = new ComparationASTNode(node,comparasion.Type,right); }  
-            //}
-            ////return node;
-            throw new Exception();
+            ASTnode node = ConcatenationASTNode();
+            while (Match(Token_Type.GREATER, Token_Type.GREATER_EQUAL, Token_Type.LESS, Token_Type.LESS_EQUAL))
+            {
+                Token comparasion = Previous();
+                 ASTnode right = ConcatenationASTNode();
+                if (comparasion.Type == Token_Type.GREATER) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.GREATER_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.LESS) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.LESS_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
+            }
+            return node;
+           
+        }
+
+        private ASTnode ConcatenationASTNode() 
+        {
+            ASTnode node = TermASTNode();
+            while (Match(Token_Type.CONCAT))
+            {
+                Token concat = Previous();
+                ASTnode right = TermASTNode();
+                node = new ConcatenationASTNode(node, right);
+            }
+            return node;
+        }
+
+        private ASTnode TermASTNode() 
+        {
+            ASTnode node = FactorNode();
+            while (Match(Token_Type.PLUS,Token_Type.MINUS)) 
+            {
+                Token term = Previous();
+                ASTnode right = FactorNode();
+                if (term.Type == Token_Type.PLUS) { node = new PlusAST(node, right); }
+                else
+                {
+                    node = new MinusASTNode(node, right);   
+                }
+
+            }
+            return node;
+        }
+
+        private ASTnode FactorNode() 
+        {
+            ASTnode node = PowerNode();
+            while (Match(Token_Type.DIVIDE,Token_Type.MULTIPLY,Token_Type.MODULUS)) 
+            {
+                Token fact = Previous();    
+                ASTnode right = PowerNode();
+                if (fact.Type == Token_Type.DIVIDE) { node = new FactorASTNode(node,fact.Type,right); }
+               else if (fact.Type == Token_Type.MULTIPLY) { node = new FactorASTNode(node,fact.Type,right); }
+              else  if (fact.Type == Token_Type.MODULUS) { node = new FactorASTNode(node,fact.Type,right); }
+            }
+            return node;    
+        }
+
+        private ASTnode PowerNode() 
+        {
+            ASTnode node = UnaryNode();
+            while (Match(Token_Type.POWER)) 
+            {
+                Token power = Previous();
+                ASTnode right = UnaryNode();
+                node = new PowerASTNode(node,right);
+            }
+            return node;
+        }
+
+        private ASTnode UnaryNode() 
+        {
+            while (Match(Token_Type.NOT,Token_Type.MINUS,Token_Type.PLUS)) 
+            {
+                Token unary= Previous();
+                ASTnode node = UnaryNode();
+                return new UnaryASTNode(unary.Type,node);
+
+            }
+            return LiteralNode();
         }
 
 
+        private ASTnode LiteralNode() 
+        {
+            while (Match(Token_Type.NUMBER,Token_Type.BOOLEAN,Token_Type.STRING))
+            {
+                return new LiteralASTNode(Previous().Type, Previous().Value);
+            }
+            if (Match(Token_Type.LEFT_PAREN))
+            {
+                ASTnode insidetheparent = CreateNode();
+                Consume(Token_Type.RIGHT_PAREN,"Se esperaba un parentisis derecho");
 
+            }
+          
+        }
 
 
         //----------------------------------------------------------------------------------------------------------------------------------
