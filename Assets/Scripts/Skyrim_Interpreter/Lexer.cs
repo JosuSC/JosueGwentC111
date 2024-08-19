@@ -162,29 +162,37 @@ public class Program
 {
     public static void Main()
     {
-        //agamos una prueba a ver si pincha
+        //hagamos una prueba a ver si pincha
 
         // string hello = "effect {\r\n            Name: \"\"Damage\"\",\r\n            Params: {\r\n                Amount: Number\r\n            },\r\n            Action: (targets, context) => {\r\n                for target in targets {\r\n                    i = 0;\r\n                    while (i++ < Amount)\r\n                        target.Power -= 1;\r\n                };\r\n            }\r\n        }\r\n\r\n        effect {\r\n            Name: \"\"Draw\"\",\r\n            Action: (targets, context) => {\r\n                topCard = context.Deck.Pop();\r\n                context.Hand.Add(topCard);\r\n                context.Hand.Shuffle();\r\n            }\r\n        }\r\n\r\n        effect {\r\n            Name: \"\"ReturnToDeck\"\",\r\n            Action: (targets, context) => {\r\n                for target in targets {\r\n                    owner = target.Owner;\r\n                    deck = context.DeckOfPlayer(owner);\r\n                    deck.Push(target);\r\n                    deck.Shuffle();\r\n                    context.Board.Remove(target);\r\n                };\r\n            }\r\n        }\r\n\r\n        card {\r\n            Type: \"\"Oro\"\",\r\n            Name: \"\"Beluga\"\",\r\n            Faction: \"\"Northern Realms\"\",\r\n            Power: 10,\r\n            Range: [\"\"Melee\"\", \"\"Ranged\"\"],\r\n            OnActivation: [\r\n                {\r\n                    Effect: {\r\n                        Name: \"\"Damage\"\",\r\n                        Amount: 5,\r\n                    },\r\n                    Selector: {\r\n                        Source: \"\"board\"\",\r\n                        Single: false,\r\n                        Predicate: (unit) => unit.Faction == \"\"Northern\"\" @@ \"\"Realms\"\"\r\n                    },\r\n                    PostAction: {\r\n                        Type: \"\"ReturnToDeck\"\",\r\n                        Selector: {\r\n                            Source: \"\"parent\"\",\r\n                            Single: false,\r\n                            Predicate: (unit) => unit.Power < 1\r\n                        },\r\n                    }\r\n                },\r\n                {\r\n                    Effect: \"\"Draw\"\"\r\n                }\r\n            ]\r\n        }";
 
-        string tutu = "10*10/10+10+10*10";
+        //string tutu = "10*10/10+10+10*10";
 
-        Lexer mylexer = new Lexer(tutu);
+        string ifproof = "if(tu > re ){tu += re}";
+        string whileproof = "while(5 < 10){ 10 + 20 }";
+
+        Lexer mylexer = new Lexer(whileproof);
 
         List<Token> mytokens = new List<Token>();
         mytokens = mylexer.Tokenizer();
 
-        //foreach (Token token in mytokens)
+        //for (int i = 0; i < mytokens.Count; i++)
         //{
-        //    Console.WriteLine(token);
+        //    Console.WriteLine(mytokens[i]);
+        //    Console.WriteLine();
         //}
+
+
 
         Parser par = new Parser(mytokens);
 
-        par.ART();
+        par.Parse();
+
+       // par.ART();
          
          
 
-         Parser.MandarPython(par.Word());
-
+         //Parser.MandarPython(par.Word());
+        
     }
 }

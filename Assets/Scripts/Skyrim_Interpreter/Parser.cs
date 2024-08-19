@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace Skyrim_Interpreter
 {
@@ -69,12 +70,12 @@ namespace Skyrim_Interpreter
             
         }
 
-
         // consume si el token actual coincide con el tipo dado
-        private Token Consume(Token_Type type, string message, List<Token_Type> synchroTypes)
+        private Token Consume(Token_Type type, string message)
         {
             if (Check(type)) return Advance();
-            Error(Peek(), message, synchroTypes);
+           
+            Console.WriteLine($"Se esperaba un token del tipo {type}");
             return null;
         }
         // tratar con los errores
@@ -111,324 +112,373 @@ namespace Skyrim_Interpreter
 
 
 
-        //public AST Parse() 
-        //{
-        //    foreach (var item in tokens)
-        //    {
-        //        CreateNode(item);
-        //    }
-
-
-        //    return MyTree;
-        //}
-
-        //private ASTNode CreateNode(Token item)
-        //{
-        //    if (item.Type == Token_Type.KEYWORD)
-        //    {
-        //        //llamar al metodo para keyword
-        //        return KeywordNode(item);
-        //    }
-
-        //    return LogicalNode();
-
-        //}
-
-
-        //private ASTNode KeywordNode(Token item) 
-        //{
-        //    string val = item.Value;
-        //    string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
-
-            
-          
-        //}
-
-        //private ASTNode EffectNode(Token item) 
-        //{
-
-        //}
-
-        //private ASTNode ParamsNode(Token item) 
-        //{
-
-        //}
-
-        //private ASTNode ActionNode(Token item) 
-        //{
-
-        //}
-
-        //private ASTNode WhileNode(Token item) 
-        //{
-
-        //}
-
-        //private ASTNode IfNode(Token item) 
-        //{
-
-        //}
-
-        //private ASTNode ElseNode(Token item) { }
-
-        //private ASTNode ElseIfNode(Token item) { }
-
-        //private ASTNode ForNode(Token item) { }
-
-        //private ASTNode ReturnNode(Token item) { }
-
-        //private ASTNode LogicalNode() 
-        //{
-        //    ASTNode node = EqualASTNode();
-        //    while (Match(Token_Type.AND,Token_Type.OR)) 
-        //    {
-
-        //    }
-
-
-        //}
-
-        //private ASTNode EqualASTNode() 
-        //{
-
-        //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        private ASTNode ParseExpression()
+        public void Parse()
         {
-            //obtener token actual
-            Token token = Peek();
-
-            //varificamos si el token es una kyword,un identificador,un numero,cadena o bool
-            if (Match(Token_Type.KEYWORD, Token_Type.IDENTIFIER, Token_Type.NUMBER, Token_Type.FLOAT, Token_Type.STRING, Token_Type.BOOLEAN))
+            foreach (var item in tokens)
             {
-                ASTNode node = new ASTNode(token.Type, token.Value);
-                token = PeekNext();
-                return node;
+                CreateNode();
             }
-            //verificar si es un opeador unario
-            else if (Match(Token_Type.PLUS, Token_Type.MINUS))
+        }
+
+        private ASTnode CreateNode()
+        {
+            //if (item.Type == Token_Type.KEYWORD)
+            //{
+            //    //llamar al metodo para keyword
+            //    return KeywordNode(item);
+            //}
+
+           
+            return LogicalNode();
+
+        }
+
+        private ASTnode KeywordNode()
+        {
+            
+            string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
+
+            if (Match(Token_Type.KEYWORD))
             {
-                // Crear un nodo en el AST para el operador unario
-                ASTNode operatorNode = new ASTNode(token.Type, token.Value);
-                token = PeekNext();
+                Token keyword = Previous();
 
-                // Analizar la expresión derecha
-                ASTNode rightNode = ParseExpression();
+                if (keyword.Value == "effect" || keyword.Value == "Effect") { EffectNode(); }
+                else if (keyword.Value == "card") {/* algo*/ }
 
-                // Crear un nodo en el AST para la expresión completa
-                ASTNode expressionNode = new ASTNode(Token_Type.EXPRESSION, "");
-                expressionNode.children.Add(operatorNode);
-                expressionNode.children.Add(rightNode);
+                CreateNode(); 
 
-                return expressionNode;
             }
-            //verificamos is es aritmetico
-            else if (Match(Token_Type.PLUS, Token_Type.MINUS, Token_Type.POWER, Token_Type.DIVIDE, Token_Type.MULTIPLY, Token_Type.MODULUS))
+
+            throw new NotImplementedException();    
+
+        }
+
+        private EffectASTNode EffectNode()
+        {
+            EffectASTNode effect = new EffectASTNode();
+           PeekNext();
+            Check(Token_Type.DELIMITIER);
+            Node delimiter = new Node(Peek().Type,Peek().Value);
+            effect.children.Add(delimiter); 
+            PeekNext();
+            //nombre de efecto
+            if (Check(Token_Type.IDENTIFIER))
             {
-                // Obtener el token actual
-                Token operatorToken = Peek();
-
-                // Analizar la expresión izquierda
-                ASTNode leftNode = ParseExpression();
-
-                
-                token = PeekNext();
-
-                // Verificar si el token actual es un operador aritmético
-                if (Match(operatorToken.Type))
+                PeekNext();
+                while (Peek().Type != Token_Type.IDENTIFIER)
                 {
-                    // Crear un nodo en el AST para el operador aritmético
-                    ASTNode operatorNode = new ASTNode(operatorToken.Type, operatorToken.Value);
-
-                    // Analizar la expresión derecha
-                    ASTNode rightNode = ParseExpression();
-
-                    // Crear un nodo en el AST para la expresión completa
-                    ASTNode expressionNode = new ASTNode(Token_Type.EXPRESSION, "");
-                    expressionNode.children.Add(leftNode);
-                    expressionNode.children.Add(operatorNode);
-                    expressionNode.children.Add(rightNode);
-
-                    return expressionNode;
+                    Node newnode = new Node(Peek().Type,Peek().Value);
+                    effect.children.Add(newnode);
+                    PeekNext();
                 }
+                effect.Name = Peek().Value;
+                PeekNext();
+            }
+
+            if (Peek().Value == "Parmas")
+            {
+               Params parametros = new Params();
+                ParamsNode(ref parametros);
+                effect.children.Add(parametros);
+                effect.Params= parametros;  
+            }
+
+            if (Peek().Value == "Action")
+            {
+                ActionASTNode action = new ActionASTNode(); 
+                PeekNext(); 
+            }
+
+            return effect;  
+        }
+
+        private void ParamsNode(ref Params parametros)
+        {
+            Consume(Token_Type.DELIMITIER,"Se Esperaba un delimitador");
+            Node delimiter = new Node(Peek().Type,Peek().Value);
+            parametros.param.Add(delimiter);
+            PeekNext();
+
+            while (Peek().Value != "}") 
+            {
+                Node newnod = new Node(Peek().Type, Peek().Value);
+                parametros.param.Add(newnod);   
+                PeekNext();
+            }
+            PeekNext();
+        }
+
+        private void ActionNode(ActionASTNode action)
+        {
+            if (Check(Token_Type.DELIMITIER))
+            {
+                while (Peek().Value != ")")
+                {
+                    Node newnod = new Node(Peek().Type,Peek().Value);
+                    action.parametros.Add(newnod);
+                    PeekNext(); 
+                }
+            }
+            PeekNext();
+            Consume(Token_Type.LAMBDA,"Se esperaba un lambda");
+            
+            if (Check(Token_Type.DELIMITIER))
+            {
+                while (Peek().Value != "}")
+                {
+                    //empezamos a preguntar
+
+
+
+                    Node newnod = new Node(Peek().Type, Peek().Value);
+                    action.parametros.Add(newnod);
+                    PeekNext();
+                }
+            }
+
+        }
+        /*
+        private ASTNode WhileNode(Token item)
+        {
+
+        }
+
+        private ASTNode IfNode(Token item)
+        {
+
+        }
+
+        private ASTNode ElseNode(Token item) { }
+
+        private ASTNode ElseIfNode(Token item) { }
+
+        private ASTNode ForNode(Token item) { }
+
+        private ASTNode ReturnNode(Token item) { }
+        */
+        private ASTnode LogicalNode()
+        {
+            ASTnode node = EqualASTNode();
+            while (Match(Token_Type.AND, Token_Type.OR))
+            {
+                Token boolean = Previous();
+                ASTnode right = EqualASTNode();
+                if (boolean.Type == Token_Type.AND) node = new AndASTNode(node, right);
+                else { node = new OrASTNode(node, right); }
+            }
+
+           return node;
+          
+        }
+
+        private ASTnode EqualASTNode()
+        {
+            ASTnode node = ComparasionASTNode();
+            while (Match(Token_Type.NOT_EQUAL,Token_Type.EQUAL))
+            {
+               Token equality = Previous(); 
+                ASTnode right = ComparasionASTNode();
+                if (equality.Type == Token_Type.EQUAL) { node = new EqualASTNode(node, right); }
+                else { node = new NotEqualASTNode(node, right); }
+            }
+
+            return node;
+        }
+
+        private ASTnode ComparasionASTNode() 
+        {
+            ASTnode node = ConcatenationASTNode();
+            while (Match(Token_Type.GREATER, Token_Type.GREATER_EQUAL, Token_Type.LESS, Token_Type.LESS_EQUAL))
+            {
+                Token comparasion = Previous();
+                 ASTnode right = ConcatenationASTNode();
+                if (comparasion.Type == Token_Type.GREATER) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.GREATER_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.LESS) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                else if (comparasion.Type == Token_Type.LESS_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
+            }
+            return node;
+           
+        }
+
+        private ASTnode ConcatenationASTNode() 
+        {
+            ASTnode node = TermASTNode();
+            while (Match(Token_Type.CONCAT))
+            {
+                Token concat = Previous();
+                ASTnode right = TermASTNode();
+                node = new ConcatenationASTNode(node, right);
+            }
+            return node;
+        }
+
+        private ASTnode TermASTNode() 
+        {
+            ASTnode node = FactorNode();
+            while (Match(Token_Type.PLUS,Token_Type.MINUS)) 
+            {
+                Token term = Previous();
+                ASTnode right = FactorNode();
+                if (term.Type == Token_Type.PLUS) { node = new PlusAST(node, right); }
                 else
                 {
-                    // Devolver la expresión izquierda
-                    return leftNode;
+                    node = new MinusASTNode(node, right);   
                 }
+
             }
-            //verificas si es un operador relacional o logico
-            else if (Match(Token_Type.NOT_EQUAL, Token_Type.EQUAL, Token_Type.NOT, Token_Type.GREATER, Token_Type.GREATER_EQUAL, Token_Type.LESS_EQUAL, Token_Type.LESS, Token_Type.AND, Token_Type.OR))
+            return node;
+        }
+
+        private ASTnode FactorNode() 
+        {
+            ASTnode node = PowerNode();
+            while (Match(Token_Type.DIVIDE,Token_Type.MULTIPLY,Token_Type.MODULUS)) 
             {
-                // Crear un nodo en el AST para el operador relacional o lógico
-                ASTNode operatorNode = new ASTNode(token.Type, token.Value);
-                token = PeekNext();
-
-                // Analizar la expresión derecha
-                ASTNode rightNode = ParseExpression();
-
-                // Crear un nodo en el AST para la expresión completa
-                ASTNode expressionNode = new ASTNode(Token_Type.EXPRESSION, "");
-                expressionNode.children.Add(operatorNode);
-                expressionNode.children.Add(rightNode);
-
-                return expressionNode;
+                Token fact = Previous();    
+                ASTnode right = PowerNode();
+                if (fact.Type == Token_Type.DIVIDE) { node = new FactorASTNode(node,fact.Type,right); }
+               else if (fact.Type == Token_Type.MULTIPLY) { node = new FactorASTNode(node,fact.Type,right); }
+              else  if (fact.Type == Token_Type.MODULUS) { node = new FactorASTNode(node,fact.Type,right); }
             }
-            //verificar si es de asignacion
-            else if (Match(Token_Type.ASSIGN))
+            return node;    
+        }
+
+        private ASTnode PowerNode() 
+        {
+            ASTnode node = UnaryNode();
+            while (Match(Token_Type.POWER)) 
             {
-                //creamos el AST para las asignacion
-                ASTNode assignNode = new ASTNode(token.Type, token.Value);
-                token = PeekNext();
-
-                //analizar a la dercha
-                ASTNode rightNode = ParseExpression();
-
-                // Crear un nodo en el AST para la expresión completa
-                ASTNode expressionNode = new ASTNode(Token_Type.EXPRESSION, "");
-                expressionNode.children.Add(assignNode);
-                expressionNode.children.Add(rightNode);
-
-                return expressionNode;
+                Token power = Previous();
+                ASTnode right = UnaryNode();
+                node = new PowerASTNode(node,right);
             }
-            // Verificar si el token es un paréntesis izquierdo
-            else if (token.Type == Token_Type.LEFT_PAREN)
+            return node;
+        }
+
+        private ASTnode UnaryNode() 
+        {
+            while (Match(Token_Type.NOT,Token_Type.MINUS,Token_Type.PLUS)) 
             {
-                
-                token = PeekNext();
+                Token unary= Previous();
+                ASTnode node = UnaryNode();
+                return new UnaryASTNode(unary.Type,node);
 
-                // Analizar la expresión dentro del paréntesis
-                ASTNode expressionNode = ParseExpression();
-
-                // Verificar si el token actual es un paréntesis derecho
-                Consume(Token_Type.RIGHT_PAREN, "Expect ')' after expression.", null);
-
-                return expressionNode;
             }
-            // Verificar si el token es un punto y coma
-            else if (Match(Token_Type.SEMICOLON))
-            {
-               
-                token = PeekNext();
-
-                // Devolver un nodo vacío
-                return new ASTNode(Token_Type.EMPTY, "");
-            }
-            //vreificas si es una coma
-            else if (Match(Token_Type.COMMA)) 
-            {
-               
-               token = PeekNext();
-
-                // Devolver un nodo vacío
-                return new ASTNode(Token_Type.EMPTY, "");
-            }
-            // Verificar si el token es un delimitador
-            else if (Match(Token_Type.DELIMITIER))
-            {
-                
-                token = PeekNext();
-
-                // Devolver un nodo vacío
-                return new ASTNode(Token_Type.EMPTY, "");
-            }
-            // Si no se reconoce el token, lanzar una excepción
-            else
-            {
-                throw new Exception("Token no reconocido: " + token.Type);
-            }
+            return LiteralNode();
         }
 
 
-        private ASTNode ParseStatement()
+        private ASTnode LiteralNode() 
         {
-            // Intentar analizar una declaración
-            ASTNode declaration = ParseDeclaration();
-            if (declaration != null) return declaration;
-
-            // Intentar analizar una expresión
-            return ParseExpression();
-        }
-
-
-        private bool Match(params Token_Type[] types)
-        {
-            foreach (Token_Type type in types)
+            while (Match(Token_Type.NUMBER,Token_Type.BOOLEAN,Token_Type.STRING))
             {
-                if (Peek().Type == type)
-                {
-                    PeekNext();
-                    return true;
-                }
+                return new LiteralASTNode(Previous().Type, Previous().Value);
             }
-            return false;
+            if (Match(Token_Type.LEFT_PAREN))
+            {
+                ASTnode insidetheparent = CreateNode();
+                Consume(Token_Type.RIGHT_PAREN,"Se esperaba un parentisis derecho");
+                return new GroupingASTNode(insidetheparent);    
+            }
+            return PrimaryNode();
         }
 
-
-        private ASTNode ParseDeclaration() 
+        public ASTnode PrimaryNode() 
         {
-            // Obtener el token actual
-            Token token = Peek();
-
-            // Verificar si el token es un identificador
             if (Match(Token_Type.IDENTIFIER))
             {
-                // Crear un nodo en el AST para el identificador
-                ASTNode identifierNode = new ASTNode(Token_Type.IDENTIFIER, token.Value);
-                PeekNext();
-
-                // Verificar si el token es un signo de asignación (=)
-                if (Match(Token_Type.ASSIGN))
+                if (Peek().Type == Token_Type.LEFT_PAREN)
                 {
-                    // Avanzar al siguiente token
-                    PeekNext();
-
-                    // Analizar la expresión derecha
-                    ASTNode expressionNode = ParseExpression();
-
-                    // Crear un nodo en el AST para la declaración
-                    ASTNode declarationNode = new ASTNode(Token_Type.DECLARATION, "");
-                    declarationNode.children.Add(identifierNode);
-                    declarationNode.children.Add(expressionNode);
-
-                    return declarationNode;
-                }
-                else
-                {
-                    // Crear un nodo en el AST para la declaración
-                    ASTNode declarationNode = new ASTNode(Token_Type.DECLARATION, "");
-                    declarationNode.children.Add(identifierNode);
-
-                    return declarationNode;
+                  // debe de ser una funcion 
                 }
             }
-            else
+            if (Match(Token_Type.KEYWORD))
             {
-                // Error: token no válido
-                throw new Exception("Token no válido en ParseDeclaration");
+                Token node = Previous();
+                if (node.Value == "if") { return IfASTNode(); }
+                else if (node.Value == "while") { return WhileNode(); }
+                
+                
+
             }
 
+            throw new Exception();
         }
-        */
 
-            public static void MandarPython(string args)
+
+        public ASTnode IfASTNode() 
+        {
+            ConditionalASTNode condition = new ConditionalASTNode();
+            BlockASTNode block = new BlockASTNode();
+            
+            Consume(Token_Type.DELIMITIER,"Se espera un ( despues del if");
+            while (Peek().Type != Token_Type.DELIMITIER) 
+            {
+                if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if");  }
+                Console.WriteLine(Peek());
+                Node node = new Node(Peek().Type,Peek().Value);
+                condition.condicion.param.Add(node);
+                PeekNext();
+            }
+            condition.condicion.param.Add(new Node(Peek().Type,Peek().Value));
+            PeekNext(); 
+            Consume(Token_Type.DELIMITIER,"Se esperaba un { despues de la condicion");
+            while (Peek().Type != Token_Type.DELIMITIER)
+            {
+                if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if"); }
+
+                Node node = new Node(Peek().Type, Peek().Value);
+                block.Block.param.Add(node);  
+                PeekNext();
+            }
+            block.Block.param.Add(new Node(Peek().Type, Peek().Value));
+            PeekNext();
+            return new IfASTNode(condition, block); 
+        }
+
+        public ASTnode WhileNode() 
+        {
+            ConditionalASTNode condition = new ConditionalASTNode();  
+            BlockASTNode block = new BlockASTNode();
+            Consume(Token_Type.DELIMITIER,"se esperaba un (");
+            while (Peek().Type != Token_Type.DELIMITIER) {condition.condicion.param.Add(CreateNode());}
+            Consume(Token_Type.DELIMITIER,"se esperaba un )");
+            Console.WriteLine(Peek());
+            Consume(Token_Type.DELIMITIER, "se esperaba un {");
+            while (Peek().Type != Token_Type.DELIMITIER){ block.Block.param.Add(CreateNode()); }
+            Consume(Token_Type.DELIMITIER, "se esperaba un }");
+            return new WhileASTNode(condition, block);  
+        }
+
+        public ASTnode ForNode() 
+        {
+            BlockASTNode block = new BlockASTNode();
+            string comprobacion = "";
+            if (Peek().Type == Token_Type.IDENTIFIER)
+            {
+                comprobacion = Peek().Value;
+                PeekNext();
+                if (Peek().Type == Token_Type.IDENTIFIER && Peek().Value == "in")
+                {
+                    PeekNext();
+                    if (Peek().Value == comprobacion)
+                    {
+                        Consume(Token_Type.DELIMITIER, "se esperaba una {");
+                        while (Peek().Type != Token_Type.DELIMITIER) { block.Block.param.Add(CreateNode()); }
+                    }
+                    else { throw new Exception(); }
+                }
+                else{ throw new Exception();}
+            }
+            else{throw new Exception();}
+
+            return new ForASTNode(block);
+        }
+
+
+        //----------------------------------------------------------------------------------------------------------------------------------
+        public static void MandarPython(string args)
             {
                 string pythonScriptPath = @"C:\Python_Programs\PythonApplication1\PythonApplication1\PythonApplication1.py";
         string command = $"\"{pythonScriptPath}\" " + args; // Enclose the path in quotes to handle spaces
@@ -608,198 +658,6 @@ namespace Skyrim_Interpreter
             }
         }
 
-
-
-
-        /*
-        public AST StructedTree(List<Token> tokens ) 
-        {
-            return AritOp(tokens,new AST(),new List<string>(),0);
-        }
-
-
-        private AST AritOp(List<Token> tokens, AST Tree,List<string> takens,int poss) 
-        {
-            Token  token = Peek();
-            ASTNode previus = new ASTNode(Token_Type.EOF,"EOF");
-            ASTNode mayor = new ASTNode(Token_Type.EOF,"EOF");
-
-          
-                //obtenemos token actual 
-                Token actual = Peek();
-                //mientas no eset el final
-                while (poss < tokens.Count)
-                {
-
-                    //si es aritmetico
-                    if (AritmeticsOp.ContainsKey(token.Value) && token.Type == Token_Type.ARITHMETIC)
-                    {
-                        //si la lista de operaciones tienen algo
-                        if (takens != null && takens.Count != 0)
-                        {
-                          // si el nuevo operador es menro que el anterior (+  *)
-                            if (AritmeticsOp[takens[takens.Count-1]] > AritmeticsOp[Peek().Value])
-                            {
-                                //tomamos el nuevo nodo
-                                ASTNode next = new ASTNode(Peek().Type,Peek().Value);
-                                takens.Add(Peek().Value);
-
-                               //metemos el ultimo como hijo del que tenemos 
-                                previus.AddChild(next);
-
-                                //buscamos el token anterior 
-                                token = Previous();
-
-                               
-                                if (!EsNumero(token.Type)) { Console.WriteLine("Error  "); break; }
-
-                                //metemos el hijo izquierdo con el ultimo
-                                ASTNode left = new ASTNode(token.Type,token.Value);  
-                                next.AddChild(left);
-
-                                //el anterior es igual al nuevo
-                                previus = next;
-                            }
-                            //(*  +)
-                            else if (AritmeticsOp[takens[takens.Count - 1]] < AritmeticsOp[Peek().Value])
-                            {
-                                //nuevo
-                                ASTNode next = new ASTNode(Peek().Type,Peek().Value);
-                                takens.Add(Peek().Value);
-                                // buscamos el mayor si hay
-                                for (int i = takens.Count-1; i >= 0; i--)
-                                {
-
-
-                                    if (AritmeticsOp[takens[i]] == AritmeticsOp[Peek().Value])
-                                    {
-                                        next.AddChild(mayor);
-                                        break;
-                                    }
-                                }
-
-
-                            if (next.children == null)
-                            {
-                                next.AddChild(previus);
-                            }
-
-                                //nuevo mayor
-                                mayor = next;
-
-                                token = Previous();
-                                if (!EsNumero(token.Type))
-                                {
-                                    Console.WriteLine("Error"); 
-                                    break;
-                                }
-
-                                ASTNode right = new ASTNode(token.Type, token.Value);
-                                previus.AddChild(right);
-                                previus = next;
-
-                            }
-                            else
-                            {
-                                //nuevo nodo
-                                ASTNode next = new ASTNode(Peek().Type, Peek().Value);
-                                takens.Add(Peek().Value);
-
-                                if (AritmeticsOp[Peek().Value] == 1)//(++)
-                                {
-                                    next.AddChild(previus);
-                                    token = Previous();
-                                if (!EsNumero(token.Type)) { Console.WriteLine("Error"); break; }
-
-
-                                    ASTNode left = new ASTNode(token.Type, token.Value);
-                                    previus.AddChild(left);
-                                    mayor= next;
-                                }
-                                else //(**)
-                                {
-                                //buscamos el mayor ,hacemos al nuevo hijo del mayor,y el previo hijo del nuevo
-                                if (mayor.Type != Token_Type.EOF)
-                                {
-
-                                    mayor.AddChild(next);
-                                    next.AddChild(previus);
-                                }
-                                else 
-                                    next.AddChild(previus);
-                                
-
-                                }
-
-                                previus= next;
-                            }
-                            //annadimos las operacion
-                            takens.Add(Peek().Value);
-
-                            //avanzamos
-                            token = PeekNext();
-                            continue;
-                        }
-
-                        token = tokens[poss -1];
-                        if (EsNumero(token.Type))
-                        {
-                            //tomamos en nodo anterior 
-                            previus = new ASTNode(token.Type,token.Value);
-
-                        if (AritmeticsOp.ContainsKey(token.Value))
-                        {
-
-
-                            if (AritmeticsOp[token.Value] == 1)
-                            {
-                                mayor = new ASTNode(Peek().Type, Peek().Value);
-                            }
-
-                        }
-                            //lo annadimos a las lista de operaciones 
-                            takens.Add(Peek().Value);
-
-                            //creamos le hijo izquierdos
-                            ASTNode lefChild = new ASTNode(token.Type, token.Value);
-
-
-                            //lo hacemos hijo de la operacion 
-                            previus.AddChild(lefChild);
-                        }
-                        else
-                        {
-
-                            Console.WriteLine("algo esta mal");
-                            break;
-                        }
-                    }
-                 previus = new ASTNode(token.Type, token.Value);
-
-                poss++;
-                 token = tokens[poss];
-                 
-
-                }
-
-            Tree.AddNode(mayor);
-
-            return Tree;
-        }
-
-
-        private bool EsNumero(Token_Type type ) 
-        {
-            if (type == Token_Type.NUMBER || type == Token_Type.FLOAT)
-            {
-                return true;
-            }
-
-            return false;   
-        }
-*/
-        
     }
 
-    
 }

@@ -12,3 +12,4 @@ C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter
 C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.pdb
 C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.genruntimeconfig.cache
 C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\ref\Skyrim_Interpreter.dll
+C:\Users\Josue Senarega Claro\source\repos\Skyrim_Interpreter\Skyrim_Interpreter\obj\Debug\net7.0\Skyrim_Interpreter.csproj.AssemblyReference.cache
