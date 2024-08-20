@@ -57,11 +57,16 @@ namespace Skyrim_Interpreter
     }
 
     // Variables
-    public class IdentifierASTNode : ASTNode
+    public class IdentifierASTNode : ASTnode
     {
+        public Token_Type type { get; set; }
         public string value { get; set; }
 
-        public IdentifierASTNode(string value) : base(Token_Type.IDENTIFIER, value) { this.value = value; }
+        public IdentifierASTNode(Token_Type type, string value) 
+        {
+            this.type = type;   
+            this.value = value;
+        } 
 
     }
 
@@ -78,7 +83,6 @@ namespace Skyrim_Interpreter
             RightChildren = right;
         }
     }
-
 
     public class Node : ASTnode
     {
@@ -107,9 +111,6 @@ namespace Skyrim_Interpreter
         }
 
     }
-
-
-
     public class AndASTNode : ASTnode
     {
         public ASTnode left { get; set; }
@@ -194,64 +195,70 @@ namespace Skyrim_Interpreter
         }
     }
 
-    public class AssignASTNode : ASTNode
+    public class AssignASTNode : ASTnode
     {
-        public ASTNode Left { get; private set; }
-        public ASTNode Right { get; private set; }
 
-        public AssignASTNode(ASTNode left, ASTNode right)
-            : base(Token_Type.ASSIGN, "=")
+        Token_Type type = Token_Type.ASSIGN;
+        public ASTnode Left { get;  set; }
+        public ASTnode Right { get; set; }
+
+        public AssignASTNode(ASTnode left, ASTnode right)
         {
             Left = left;
             Right = right;
         }
-
-        public void AddLeft(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Left node cannot be null");
-            }
-            Left = node;
-        }
-
-        public void AddRight(ASTNode node)
-        {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Right node cannot be null");
-            }
-            Right = node;
-        }
     }
 
+    public class AssingnementWithValue  : ASTnode
+    {
+        public Token_Type type = Token_Type.ASSIGN;
+        public string value { get; set; }
+        public ASTnode left { get; set; }
+        public ASTnode right { get; set; }
+        public AssingnementWithValue(ASTnode left, string value,ASTnode right)
+        {
+            this.left = left;
+            this.right = right;
+            this.value= value;  
+        }
+
+
+    }
     public class UnaryASTNode : ASTnode
     {
         public Token_Type Operand { get; set; }
+        public string value { get; set; }
         public ASTnode Son { get; set; }
 
-        public UnaryASTNode(Token_Type type, ASTnode son)
+        public UnaryASTNode(Token_Type type,string value, ASTnode son)
         {
             Operand = type;
+            this.value = value; 
             Son = son;
         }
 
     }
 
+    public class ColonASTNode : ASTnode 
+    {
+        public Token_Type type = Token_Type.COLON;
+        public ASTnode left { get; set; }
+        public ASTnode right { get; set; }
+        public ColonASTNode( ASTnode left, ASTnode right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+    }
 
     public class Params : ASTnode
     {
         public List<ASTnode> param { get; set; }
-
-
         public Params()
         {
             param = new List<ASTnode>();
         }
-
     }
-
-
 
     public class ConditionalASTNode : ASTnode
     {
@@ -284,6 +291,12 @@ namespace Skyrim_Interpreter
         }
     }
 
+    public class CommaASTNode : ASTnode 
+    {
+       public Token_Type type = Token_Type.COMMA;
+        public string value = ",";
+    }
+
 
     public class ActionASTNode : ASTnode
     {
@@ -292,7 +305,7 @@ namespace Skyrim_Interpreter
         public List<ASTnode> actions { get; set; }
     }
 
-    public class EffectASTNode
+    public class EffectASTNode : ASTnode    
     {
         public string Name { get; set; }
         public Params Params { get; set; }
@@ -383,6 +396,46 @@ namespace Skyrim_Interpreter
         {
             this.block = block; 
         }
+    }
+
+    public class CradASTNode 
+    {
+        public string Name { get; set; }    
+        public string Type { get; set; }
+        public string Faction { get; set;}
+        public int Power { get; set;}
+        public List<ASTnode> Range { get; set;}
+        public List<ASTnode> OnActivation { get; set; }
+        EffectCardNode EffectCardNode { get; set; }
+        SelectorCardNode SelectorCardNode { get; set; } 
+        public CradASTNode()
+        {
+                Range = new List<ASTnode>();    
+            OnActivation = new List<ASTnode>(); 
+        }
+    }
+
+    public class EffectCardNode 
+    {
+        public string Name { get; set; }    
+        public List<ASTnode> Amaunts { get; set; }
+        public EffectCardNode()
+        {
+            Amaunts= new List<ASTnode>();   
+        }
+    }
+
+    //falta hacerle el predicate
+    public class SelectorCardNode 
+    {
+        public List<ASTnode> Source { get; set;}
+        public bool Single { get; set;}
+
+        public SelectorCardNode()
+        {
+            Source = new List<ASTnode>();
+        }
+
     }
 
 }

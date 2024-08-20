@@ -29,7 +29,6 @@ namespace Skyrim_Interpreter
         // let's create our regex
          public List<Token> Tokenizer() 
         {
-
             // ignore white spaces 
             source = source.Replace(" ", string.Empty);
 
@@ -37,9 +36,13 @@ namespace Skyrim_Interpreter
             string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
             string indetifiers = @"^[a-zA-Z_][a-zA-Z0-9_]*";
             string lambdaoperator = @"=>";
-            string arithmeticsoperators = @"(?:[+\-*/%])";
+           // string arithmeticsoperators = @"(?:[+\-*/%])";
             string relational = @"(?:==|<=|>=|>|<|!=)";
             string logicoperations = @"(?: &&|\|\||!)";
+            string and = @"&&";
+            string or = @"||";
+            string not = @"!";
+            string booleanValues = @"\b(true|false)\b";
             string assignmentoperations = @"(?:=|\+=|-=|\*=|/=|%=|:)";
             string unaryoperations = @"(?:\+\+|--)";
             string number = @"\d+";
@@ -51,31 +54,70 @@ namespace Skyrim_Interpreter
             string strings = @"""((^""\\]|\.)*?)""";
             string singlecomment = @"//.*";
             string multiplecomment = @"/\*.*";
+            string colonPattern = @":";
+            string leftParentPattern = @"\(";
+            string rightParentPattern = @"\)";
+            string concatenationPattern = @"@@";
+            string plusPattern = @"\+";
+            string minusPattern = @"\-";
+            string multiplyPattern = @"\*";
+            string dividePattern = @"\/";
+            string modulusPattern = @"%";
+            string powerPattern = @"\^";
+            string lessPattern = @"<";
+            string lessEqualPattern = @"<=";
+            string greaterPattern = @">";
+            string greaterEqualPattern = @">=";
+            string equalPattern = @"==";
+            string notEqualPattern = @"!=";
+            string stringPattern = @"""([^""]*)""";
+
 
             // dictionary for to know what tokens we have  
             Dictionary<string, Token_Type> WeHave = new Dictionary<string, Token_Type>()
             {
                 { keywords, Token_Type.KEYWORD },
+                {stringPattern,Token_Type.STRING },
+                 {booleanValues,Token_Type.BOOLEAN },
                 { indetifiers , Token_Type.IDENTIFIER },
                 { lambdaoperator , Token_Type.LAMBDA },
-                { arithmeticsoperators , Token_Type.ARITHMETIC },
+                {plusPattern,Token_Type.PLUS },
+                { minusPattern,Token_Type.MINUS},
+                { multiplyPattern,Token_Type.MULTIPLY},
+                { dividePattern,Token_Type.DIVIDE},
+                {modulusPattern,Token_Type.MODULUS },
+                {powerPattern,Token_Type.POWER},
+                //{ arithmeticsoperators , Token_Type.ARITHMETIC },
+                {lessPattern,Token_Type.LESS },
+                { lessEqualPattern,Token_Type.LESS_EQUAL},
+                {greaterPattern,Token_Type.GREATER },
+                { greaterEqualPattern,Token_Type.GREATER_EQUAL},
+                {equalPattern,Token_Type.EQUAL },
+                {notEqualPattern,Token_Type.NOT_EQUAL },
                 { relational,Token_Type.RELATION },
+                 {not,Token_Type.NOT},
                 { logicoperations,Token_Type.LOGIC },
+                {colonPattern,Token_Type.COLON},
                 { assignmentoperations,Token_Type.ASSIGN },
                 { unaryoperations,Token_Type.UNARY  },
                 { number,Token_Type.NUMBER },
                 { floats,Token_Type.FLOAT},
+                {concatenationPattern,Token_Type.CONCAT},
+                {leftParentPattern,Token_Type.LEFT_PAREN },
+                {rightParentPattern,Token_Type.RIGHT_PAREN },
                 { dilimiter,Token_Type.DELIMITIER },
                 { colom, Token_Type.COMMA },
                 { semocolom,Token_Type.SEMICOLON},
                 { acccess,Token_Type.ACCESS },
                 { strings , Token_Type.STRING },
+                { and,Token_Type.AND }
                
             };
 
             //we need to scaning the source
             while (position < source.Length ) 
             {
+                if (source[position] == ' ') continue;
                 string bestmatch = null;
                 int bestlength = 0;
                 Token_Type besttokentype  = Token_Type.EOF;
@@ -150,13 +192,9 @@ namespace Skyrim_Interpreter
                     columnNumber++;
                 }
             }
-
             return columnNumber;
         }
-
     }
-
-    
 }
 public class Program
 {
@@ -168,10 +206,12 @@ public class Program
 
         //string tutu = "10*10/10+10+10*10";
 
-        string ifproof = "if(tu > re ){tu += re}";
+        string ifproof = "if(5 > 3 ){15 + 20}";
         string whileproof = "while(5 < 10){ 10 + 20 }";
+        string proof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n        for targets in  targets \r\n        { i = 0;\r\n\r\n            while (i++ < amount) target.Power -= 1;       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
+       
 
-        Lexer mylexer = new Lexer(whileproof);
+        Lexer mylexer = new Lexer(proof);
 
         List<Token> mytokens = new List<Token>();
         mytokens = mylexer.Tokenizer();
@@ -181,7 +221,6 @@ public class Program
         //    Console.WriteLine(mytokens[i]);
         //    Console.WriteLine();
         //}
-
 
 
         Parser par = new Parser(mytokens);

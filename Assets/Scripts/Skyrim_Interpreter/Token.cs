@@ -27,6 +27,7 @@ namespace Skyrim_Interpreter
         KEYWORD,
         ACCESS,
 
+        COLON,
         // Operators
         PLUS,           // Represents the addition operator "+"
         MINUS,          // Represents the subtraction operator "-"

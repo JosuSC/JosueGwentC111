@@ -11,24 +11,23 @@ using System.Xml.Linq;
 
 namespace Skyrim_Interpreter
 {
-
     internal class Parser
     {
         private List<Token> tokens;
         private int currentPosition;
         private List<string> Errors;
         private ASTNode MyTree;
-
-        public object DSL { get; private set; }
+        static Token comprobar;
 
         public Parser(List<Token> tokens)
         {
             this.tokens = tokens;
             this.currentPosition = 0;
             this.Errors = new List<string>();
-          
+            comprobar = null;
         }
 
+        #region Metodos auxilar
         //metodos auxuliares 
         //----------------------------------------------------------------------------------------------------------------
         //Return the actual token
@@ -110,197 +109,165 @@ namespace Skyrim_Interpreter
 
         //-----------------------------------------------------------------------------------------------------------------------------
 
-
+        #endregion
 
         public void Parse()
         {
-            foreach (var item in tokens)
-            {
-                CreateNode();
-            }
+            KeywordNode();
         }
 
-        private ASTnode CreateNode()
-        {
-            //if (item.Type == Token_Type.KEYWORD)
-            //{
-            //    //llamar al metodo para keyword
-            //    return KeywordNode(item);
-            //}
-
-           
-            return LogicalNode();
-
-        }
+       
 
         private ASTnode KeywordNode()
         {
-            
             string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
-
-            if (Match(Token_Type.KEYWORD))
+            if ( (Peek().Value == "effect" || Peek().Value == "card"))
             {
-                Token keyword = Previous();
+                Token keyword = Peek();
 
-                if (keyword.Value == "effect" || keyword.Value == "Effect") { EffectNode(); }
-                else if (keyword.Value == "card") {/* algo*/ }
-
-                CreateNode(); 
-
+                if (keyword.Value == "effect") {return  EffectNode(); }
+                else if (keyword.Value == "card") { return CardNode(); }
             }
-
-            throw new NotImplementedException();    
-
+            return CreateNode(); 
         }
 
         private EffectASTNode EffectNode()
         {
             EffectASTNode effect = new EffectASTNode();
-           PeekNext();
-            Check(Token_Type.DELIMITIER);
-            Node delimiter = new Node(Peek().Type,Peek().Value);
-            effect.children.Add(delimiter); 
-            PeekNext();
+            Advance();
+            if (!Check(Token_Type.DELIMITIER)) return null;
+            Advance();
             //nombre de efecto
             if (Check(Token_Type.IDENTIFIER))
             {
-                PeekNext();
-                while (Peek().Type != Token_Type.IDENTIFIER)
+                Advance();
+                while (Peek().Type != Token_Type.STRING)
                 {
-                    Node newnode = new Node(Peek().Type,Peek().Value);
-                    effect.children.Add(newnode);
-                    PeekNext();
+                    Advance();  
                 }
                 effect.Name = Peek().Value;
-                PeekNext();
+               Advance();
+             comprobar =  Consume(Token_Type.COMMA,"se esperaba una comma despues del name");
+                if (comprobar == null) { return null;}
             }
-
-            if (Peek().Value == "Parmas")
+            else { return null; }   
+            if (Peek().Value == "Params")
             {
+                Advance();
                Params parametros = new Params();
                 ParamsNode(ref parametros);
                 effect.children.Add(parametros);
                 effect.Params= parametros;  
             }
+            Console.WriteLine(Peek());
 
             if (Peek().Value == "Action")
             {
+                Advance();
                 ActionASTNode action = new ActionASTNode(); 
-                PeekNext(); 
+                ActionNode(ref action);
+                effect.children.Add(action);
+                effect.Action= action;  
+                Advance(); 
             }
-
+            comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un delimitaador");
+            if (comprobar == null) { return null; }
             return effect;  
         }
 
         private void ParamsNode(ref Params parametros)
         {
-            Consume(Token_Type.DELIMITIER,"Se Esperaba un delimitador");
-            Node delimiter = new Node(Peek().Type,Peek().Value);
-            parametros.param.Add(delimiter);
-            PeekNext();
-
+            Console.WriteLine(Peek());
+           comprobar = Consume(Token_Type.COLON,"Se esperaban dos puntos");
+            if (comprobar == null) { return; }
+            comprobar = Consume(Token_Type.DELIMITIER,"Se Esperaba un {");
+            if (comprobar == null) { return; }
             while (Peek().Value != "}") 
             {
-                Node newnod = new Node(Peek().Type, Peek().Value);
-                parametros.param.Add(newnod);   
-                PeekNext();
+                Console.WriteLine(Peek());
+                parametros.param.Add(CreateNode());
+                Console.WriteLine(Peek());
             }
-            PeekNext();
+            Advance();
         }
 
-        private void ActionNode(ActionASTNode action)
+        private void ActionNode(ref ActionASTNode action)
         {
-            if (Check(Token_Type.DELIMITIER))
+            comprobar = Consume(Token_Type.COLON,"se esperaba un : ");
+            if (comprobar == null) { return; }
+            if (Check(Token_Type.LEFT_PAREN))
             {
-                while (Peek().Value != ")")
+                Advance();
+                while (Peek().Type != Token_Type.RIGHT_PAREN)
                 {
-                    Node newnod = new Node(Peek().Type,Peek().Value);
-                    action.parametros.Add(newnod);
-                    PeekNext(); 
+                    Console.WriteLine(Peek());
+                    action.parametros.Add(CreateNode());
+                    Console.WriteLine(Peek());
                 }
             }
-            PeekNext();
-            Consume(Token_Type.LAMBDA,"Se esperaba un lambda");
-            
+            else { return; }
+            Advance();
+           comprobar = Consume(Token_Type.LAMBDA,"Se esperaba un =>");
+            if (comprobar == null) { return; }
             if (Check(Token_Type.DELIMITIER))
             {
                 while (Peek().Value != "}")
                 {
-                    //empezamos a preguntar
-
-
-
-                    Node newnod = new Node(Peek().Type, Peek().Value);
-                    action.parametros.Add(newnod);
-                    PeekNext();
+                  action.actions.Add(CreateNode()); 
                 }
             }
-
+            else { return; }
         }
-        /*
-        private ASTNode WhileNode(Token item)
+
+        // esta por implementarse---------------------------------------
+        private ASTnode CardNode() 
         {
-
+           throw new Exception();   
         }
 
-        private ASTNode IfNode(Token item)
+        private ASTnode CreateNode()
         {
-
+            return LogicalNode();
         }
-
-        private ASTNode ElseNode(Token item) { }
-
-        private ASTNode ElseIfNode(Token item) { }
-
-        private ASTNode ForNode(Token item) { }
-
-        private ASTNode ReturnNode(Token item) { }
-        */
         private ASTnode LogicalNode()
         {
             ASTnode node = EqualASTNode();
-            while (Match(Token_Type.AND, Token_Type.OR))
+            while (Match(Token_Type.AND, Token_Type.LOGIC))
             {
                 Token boolean = Previous();
                 ASTnode right = EqualASTNode();
                 if (boolean.Type == Token_Type.AND) node = new AndASTNode(node, right);
                 else { node = new OrASTNode(node, right); }
             }
-
            return node;
-          
         }
 
         private ASTnode EqualASTNode()
         {
             ASTnode node = ComparasionASTNode();
-            while (Match(Token_Type.NOT_EQUAL,Token_Type.EQUAL))
+            while (Match(Token_Type.EQUAL,Token_Type.NOT_EQUAL) )
             {
-               Token equality = Previous(); 
+                Token equality = Previous();
                 ASTnode right = ComparasionASTNode();
-                if (equality.Type == Token_Type.EQUAL) { node = new EqualASTNode(node, right); }
+                if (equality.Value == " == ") { node = new EqualASTNode(node, right); }
                 else { node = new NotEqualASTNode(node, right); }
             }
-
             return node;
         }
-
         private ASTnode ComparasionASTNode() 
         {
             ASTnode node = ConcatenationASTNode();
-            while (Match(Token_Type.GREATER, Token_Type.GREATER_EQUAL, Token_Type.LESS, Token_Type.LESS_EQUAL))
+            while (Match(Token_Type.GREATER,Token_Type.GREATER_EQUAL,Token_Type.LESS,Token_Type.LESS_EQUAL))
             {
                 Token comparasion = Previous();
-                 ASTnode right = ConcatenationASTNode();
-                if (comparasion.Type == Token_Type.GREATER) { node = new ComparationASTNode(node, comparasion.Type, right); }
-                else if (comparasion.Type == Token_Type.GREATER_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
-                else if (comparasion.Type == Token_Type.LESS) { node = new ComparationASTNode(node, comparasion.Type, right); }
-                else if (comparasion.Type == Token_Type.LESS_EQUAL) { node = new ComparationASTNode(node, comparasion.Type, right); }
+                ASTnode right = ConcatenationASTNode();
+                if (comparasion.Value == ">") { node = new ComparationASTNode(node, Token_Type.GREATER, right); }
+                else if (comparasion.Value == ">=") { node = new ComparationASTNode(node, Token_Type.GREATER_EQUAL, right); }
+                else if (comparasion.Value == "<") { node = new ComparationASTNode(node, Token_Type.LESS, right); }
+                else if (comparasion.Value == "<=") { node = new ComparationASTNode(node, Token_Type.LESS_EQUAL, right); }
             }
-            return node;
-           
+            return node;        
         }
-
         private ASTnode ConcatenationASTNode() 
         {
             ASTnode node = TermASTNode();
@@ -312,15 +279,14 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
-
         private ASTnode TermASTNode() 
         {
             ASTnode node = FactorNode();
-            while (Match(Token_Type.PLUS,Token_Type.MINUS)) 
+            while (Match(Token_Type.PLUS , Token_Type.MINUS)) 
             {
                 Token term = Previous();
                 ASTnode right = FactorNode();
-                if (term.Type == Token_Type.PLUS) { node = new PlusAST(node, right); }
+                if (term.Value == "+") { node = new PlusAST(node, right); }
                 else
                 {
                     node = new MinusASTNode(node, right);   
@@ -329,7 +295,6 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
-
         private ASTnode FactorNode() 
         {
             ASTnode node = PowerNode();
@@ -337,37 +302,75 @@ namespace Skyrim_Interpreter
             {
                 Token fact = Previous();    
                 ASTnode right = PowerNode();
-                if (fact.Type == Token_Type.DIVIDE) { node = new FactorASTNode(node,fact.Type,right); }
-               else if (fact.Type == Token_Type.MULTIPLY) { node = new FactorASTNode(node,fact.Type,right); }
-              else  if (fact.Type == Token_Type.MODULUS) { node = new FactorASTNode(node,fact.Type,right); }
+                if (fact.Value == "*") { node = new FactorASTNode(node,Token_Type.MULTIPLY,right); }
+               else if (fact.Value == "/") { node = new FactorASTNode(node,Token_Type.DIVIDE,right); }
+               else  if (fact.Value == "%") { node = new FactorASTNode(node,Token_Type.MODULUS,right); }
             }
             return node;    
         }
-
         private ASTnode PowerNode() 
         {
-            ASTnode node = UnaryNode();
+            ASTnode node = AssignationNode();
             while (Match(Token_Type.POWER)) 
             {
                 Token power = Previous();
-                ASTnode right = UnaryNode();
+                ASTnode right = AssignationNode();
                 node = new PowerASTNode(node,right);
+            }
+            return node;
+        }
+
+        private ASTnode AssignationNode() 
+        {
+          ASTnode node = AssignemetWithValue();
+            while (Match(Token_Type.ASSIGN) && Previous().Value == "=")
+            {
+                Token assign= Previous();
+                ASTnode right = AssignemetWithValue();
+                node = new AssignASTNode(node,right);
+            }
+            return node;
+        }
+
+        private ASTnode AssignemetWithValue() 
+        {
+            ASTnode node = ColonNode();
+            while (Match(Token_Type.ASSIGN) && (Previous().Value == "+=" || Previous().Value == "-=" || Previous().Value == "/=" || Previous().Value == "%=" || Previous().Value == "*="))
+            {
+                Token awv = Previous();
+                ASTnode right = ColonNode();
+                    if (awv.Value == "+=") { node = new AssingnementWithValue(node,awv.Value,right); }
+               else if (awv.Value == "-=") { node = new AssingnementWithValue(node,awv.Value,right); }
+               else if (awv.Value == "*=") { node = new AssingnementWithValue(node,awv.Value,right); }
+               else if (awv.Value == "/=") { node = new AssingnementWithValue(node,awv.Value,right); }
+               else if (awv.Value == "%=") { node = new AssingnementWithValue(node,awv.Value,right); } 
+            }
+            return node;
+        }
+
+        private ASTnode ColonNode() 
+        {
+            ASTnode node = UnaryNode();
+            while (Match(Token_Type.COLON)) 
+            {
+                Console.WriteLine(Peek());
+                Token col = Previous();
+                ASTnode right = UnaryNode();
+                node = new ColonASTNode(node,right);
             }
             return node;
         }
 
         private ASTnode UnaryNode() 
         {
-            while (Match(Token_Type.NOT,Token_Type.MINUS,Token_Type.PLUS)) 
+            while (Match(Token_Type.NOT,Token_Type.UNARY)) 
             {
                 Token unary= Previous();
                 ASTnode node = UnaryNode();
-                return new UnaryASTNode(unary.Type,node);
-
+                return new UnaryASTNode(unary.Type,unary.Value,node);
             }
             return LiteralNode();
         }
-
 
         private ASTnode LiteralNode() 
         {
@@ -375,6 +378,7 @@ namespace Skyrim_Interpreter
             {
                 return new LiteralASTNode(Previous().Type, Previous().Value);
             }
+            while (Match(Token_Type.IDENTIFIER)) { return new IdentifierASTNode(Previous().Type, Previous().Value);}
             if (Match(Token_Type.LEFT_PAREN))
             {
                 ASTnode insidetheparent = CreateNode();
@@ -386,54 +390,48 @@ namespace Skyrim_Interpreter
 
         public ASTnode PrimaryNode() 
         {
-            if (Match(Token_Type.IDENTIFIER))
-            {
-                if (Peek().Type == Token_Type.LEFT_PAREN)
-                {
-                  // debe de ser una funcion 
-                }
-            }
             if (Match(Token_Type.KEYWORD))
             {
                 Token node = Previous();
                 if (node.Value == "if") { return IfASTNode(); }
                 else if (node.Value == "while") { return WhileNode(); }
-                
-                
-
+                else if (node.Value == "for") { }
+                else if (true) { }
+            }
+            if (Match(Token_Type.COMMA))
+            {
+                return new CommaASTNode();
             }
 
             throw new Exception();
         }
 
-
         public ASTnode IfASTNode() 
         {
+            //creamos el nodo para la condicicon y el nodo para el bloque
             ConditionalASTNode condition = new ConditionalASTNode();
             BlockASTNode block = new BlockASTNode();
             
-            Consume(Token_Type.DELIMITIER,"Se espera un ( despues del if");
-            while (Peek().Type != Token_Type.DELIMITIER) 
+          comprobar =  Consume(Token_Type.LEFT_PAREN,"Se espera un ( despues del if");
+            if (comprobar == null) { return null;}
+            while (Peek().Type != Token_Type.RIGHT_PAREN) 
             {
                 if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if");  }
                 Console.WriteLine(Peek());
-                Node node = new Node(Peek().Type,Peek().Value);
-                condition.condicion.param.Add(node);
-                PeekNext();
+                condition.condicion.param.Add(CreateNode());
+                Console.WriteLine(Peek());
             }
-            condition.condicion.param.Add(new Node(Peek().Type,Peek().Value));
-            PeekNext(); 
-            Consume(Token_Type.DELIMITIER,"Se esperaba un { despues de la condicion");
+            Advance();
+           comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un { despues de la condicion");
+            if (comprobar == null) { return null; }
             while (Peek().Type != Token_Type.DELIMITIER)
             {
                 if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if"); }
-
-                Node node = new Node(Peek().Type, Peek().Value);
-                block.Block.param.Add(node);  
-                PeekNext();
+                Console.WriteLine(Peek());
+                block.Block.param.Add(CreateNode());
+                Console.WriteLine(Peek());
             }
-            block.Block.param.Add(new Node(Peek().Type, Peek().Value));
-            PeekNext();
+            Advance();   
             return new IfASTNode(condition, block); 
         }
 
@@ -441,13 +439,16 @@ namespace Skyrim_Interpreter
         {
             ConditionalASTNode condition = new ConditionalASTNode();  
             BlockASTNode block = new BlockASTNode();
-            Consume(Token_Type.DELIMITIER,"se esperaba un (");
-            while (Peek().Type != Token_Type.DELIMITIER) {condition.condicion.param.Add(CreateNode());}
-            Consume(Token_Type.DELIMITIER,"se esperaba un )");
+           comprobar =   Consume(Token_Type.LEFT_PAREN,"se esperaba un (");
+            if (comprobar == null) { return null; }
+            while (Peek().Type != Token_Type.RIGHT_PAREN) { Console.WriteLine(Peek()); condition.condicion.param.Add(CreateNode()); Console.WriteLine(Peek()); }
+            Advance();  
             Console.WriteLine(Peek());
-            Consume(Token_Type.DELIMITIER, "se esperaba un {");
-            while (Peek().Type != Token_Type.DELIMITIER){ block.Block.param.Add(CreateNode()); }
-            Consume(Token_Type.DELIMITIER, "se esperaba un }");
+           comprobar = Consume(Token_Type.DELIMITIER, "se esperaba un {");
+            if (comprobar == null) { return null; }
+            while (Peek().Type != Token_Type.DELIMITIER) { Console.WriteLine(Peek()); block.Block.param.Add(CreateNode()); Console.WriteLine(Peek());}
+           comprobar = Consume(Token_Type.DELIMITIER, "se esperaba un }");
+            if (comprobar == null) { return null; }
             return new WhileASTNode(condition, block);  
         }
 
