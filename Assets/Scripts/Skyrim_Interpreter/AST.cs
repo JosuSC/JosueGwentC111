@@ -37,7 +37,14 @@ namespace Skyrim_Interpreter
 
     }
 
-
+    public class ASTnodeTree : ASTnode
+    {
+      public List<ASTnode> children;
+        public ASTnodeTree()
+        {
+            children= new List<ASTnode>();
+        }
+    }
     public abstract class ASTnode { }
 
     public class PlusAST : ASTnode
@@ -313,6 +320,11 @@ namespace Skyrim_Interpreter
 
         public List<ASTnode> parametros { get; set; }
         public List<ASTnode> actions { get; set; }
+        public ActionASTNode()
+        {
+            parametros= new List<ASTnode>();    
+            actions= new List<ASTnode>();   
+        }
     }
 
     public class EffectASTNode : ASTnode    
