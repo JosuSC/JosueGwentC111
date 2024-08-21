@@ -297,7 +297,17 @@ namespace Skyrim_Interpreter
         public string value = ",";
     }
 
-
+    public class AccessASTNode :ASTnode
+    {
+        Token_Type Type= Token_Type.ACCESS;
+        public ASTnode left { get; set; }
+        public ASTnode right { get; set; }
+        public AccessASTNode(ASTnode left, ASTnode right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+    }
     public class ActionASTNode : ASTnode
     {
 
@@ -398,7 +408,7 @@ namespace Skyrim_Interpreter
         }
     }
 
-    public class CradASTNode 
+    public class CardASTNode  : ASTnode
     {
         public string Name { get; set; }    
         public string Type { get; set; }
@@ -408,14 +418,14 @@ namespace Skyrim_Interpreter
         public List<ASTnode> OnActivation { get; set; }
         EffectCardNode EffectCardNode { get; set; }
         SelectorCardNode SelectorCardNode { get; set; } 
-        public CradASTNode()
+        public CardASTNode()
         {
                 Range = new List<ASTnode>();    
             OnActivation = new List<ASTnode>(); 
         }
     }
 
-    public class EffectCardNode 
+    public class EffectCardNode  : ASTnode
     {
         public string Name { get; set; }    
         public List<ASTnode> Amaunts { get; set; }
@@ -426,14 +436,14 @@ namespace Skyrim_Interpreter
     }
 
     //falta hacerle el predicate
-    public class SelectorCardNode 
+    public class SelectorCardNode : ASTnode
     {
-        public List<ASTnode> Source { get; set;}
+        public string Source { get; set;}
         public bool Single { get; set;}
 
         public SelectorCardNode()
         {
-            Source = new List<ASTnode>();
+            Single = false;
         }
 
     }

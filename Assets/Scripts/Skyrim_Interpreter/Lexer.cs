@@ -208,24 +208,24 @@ public class Program
 
         string ifproof = "if(5 > 3 ){15 + 20}";
         string whileproof = "while(5 < 10){ 10 + 20 }";
-        string proof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n        for targets in  targets \r\n        { i = 0;\r\n\r\n            while (i++ < amount) target.Power -= 1;       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
-       
+        string effectproof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n        for targets in  targets \r\n        { i = 0;\r\n\r\n            while (i++ < amount) target.Power -= 1;       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
+        string proof = "context.trigger";
 
         Lexer mylexer = new Lexer(proof);
 
         List<Token> mytokens = new List<Token>();
         mytokens = mylexer.Tokenizer();
 
-        //for (int i = 0; i < mytokens.Count; i++)
-        //{
-        //    Console.WriteLine(mytokens[i]);
-        //    Console.WriteLine();
-        //}
+        for (int i = 0; i < mytokens.Count; i++)
+        {
+            Console.WriteLine(mytokens[i]);
+            Console.WriteLine();
+        }
 
 
         Parser par = new Parser(mytokens);
 
-        par.Parse();
+      //  par.Parse();
 
        // par.ART();
          

@@ -43,6 +43,12 @@ namespace Skyrim_Interpreter
             return Peek().Type == type;
         }
 
+        private bool CheckValue(string value) 
+        {
+            if (IsAtEnd()) return false;
+            return Peek().Value == value;   
+        }
+
         //Verifica si ya se llego al final de la lista de tokens
         private bool IsAtEnd() 
         {
@@ -76,22 +82,6 @@ namespace Skyrim_Interpreter
            
             Console.WriteLine($"Se esperaba un token del tipo {type}");
             return null;
-        }
-        // tratar con los errores
-        private void Error(Token token, string message, List<Token_Type> synchroTypes)
-        {
-            Synchronize(synchroTypes);
-             //DSL.Error(token, message); // Uncomment this line to report the error.
-        }
-        //Este método sincroniza el estado del analizador después de un error. Se basa en una lista dada de tokens que determinan dónde detener la sincronización
-        private void Synchronize(List<Token_Type> synchroTypes)
-        {
-            if (synchroTypes == null) return;
-            while (!IsAtEnd())
-            {
-                if (synchroTypes.Contains(Peek().Type)) return;
-                Advance();
-            }
         }
 
         private bool Match(params Token_Type[] types)
@@ -222,13 +212,163 @@ namespace Skyrim_Interpreter
         // esta por implementarse---------------------------------------
         private ASTnode CardNode() 
         {
-           throw new Exception();   
+            CardASTNode card = new CardASTNode();
+            Advance();
+            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un { despues de card");
+            if (comprobar == null) { return null;}
+            card = Meter("Name", card);
+            if (card == null) { return null; };
+            card = Meter("Type", card);
+            if (card == null) { return null; };
+            card = Meter("Faction", card);
+            if (card == null) { return null; };
+
+            if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Power")
+            {
+                Advance();
+                while (Peek().Type != Token_Type.NUMBER) { Advance(); }
+                card.Power = Convert.ToInt32(Peek().Value);
+                Advance();
+                comprobar = Consume(Token_Type.COMMA,"se esperaba una ,");
+                if (comprobar == null) { return null;}
+            }
+            else return null;
+
+            if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Range")
+            {
+                Advance();
+                card = MeterenRange(card);
+                if (card == null) return null;
+                comprobar = Consume(Token_Type.COMMA, "se esperaba una comma");
+                if (comprobar == null) return null;
+            }
+            else return null;
+
+            if (Check(Token_Type.IDENTIFIER) && Peek().Value == "OnActivation")
+            {
+                comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un [");
+                if (comprobar == null) return null;
+                card = OnActivationList(card);
+            }
+
+            return card;
         }
 
-        private ASTnode CreateNode()
+        private CardASTNode OnActivationList(CardASTNode card) 
         {
-            return LogicalNode();
+            while (Peek().Value != "]") 
+            {
+                if (Peek().Value == "{")
+                {
+                    Advance();
+                    while (Peek().Value != "}") 
+                    {
+                        if (Peek().Value == "Effect")
+                        {
+                            Advance();  
+                            card.OnActivation.Add(EffectForCard());
+                        }  
+                    }
+                    Advance();
+                }
+
+                if (Peek().Value == "Selector")
+                {
+                    Advance();
+                    comprobar = Consume(Token_Type.COLON,"se esperaba :");
+                    if (comprobar == null) return null;
+                    comprobar = Consume(Token_Type.DELIMITIER,"se esperaba {");
+                    if (comprobar == null) return null;
+                    while (Peek().Value != "}") 
+                    {
+                       card.OnActivation.Add(SelectorForCard());  
+                    }
+
+                }
+            }
+
+            return card;
         }
+
+        private EffectCardNode EffectForCard() 
+        {
+            EffectCardNode effcard = new EffectCardNode();
+            comprobar = Consume(Token_Type.COLON,"se esperaba un :");
+            if (comprobar == null) return null;
+            if (Peek().Type == Token_Type.STRING)
+            {
+                effcard.Name = Peek().Value;
+                return effcard; 
+            }
+            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un {");
+            if (comprobar == null) return null;
+            while (Peek().Value != "}") 
+            {
+                if (Peek().Value == "Name") { Advance(); if (!Check(Token_Type.COLON)) { Console.WriteLine("Se esperaba dos puntos");return null; }; while (Peek().Type != Token_Type.STRING) { Advance(); } effcard.Name = Peek().Value; comprobar = Consume(Token_Type.COMMA, "se esperaba ,");}
+                else if (Peek().Value == "Amount") { Advance(); comprobar = Consume(Token_Type.COLON, "se esparaba :"); while(Peek().Type != Token_Type.COMMA) { effcard.Amaunts.Add(CreateNode()); }; }
+            }
+            return effcard;
+        }
+
+        private SelectorCardNode SelectorForCard() 
+        {
+            SelectorCardNode selector = new SelectorCardNode();
+            if (CheckValue("Source"))
+            {
+                comprobar = Consume(Token_Type.COLON, "se esperaba :");
+                if (comprobar == null) return null;
+                if (Check(Token_Type.STRING))
+                {
+                    selector.Source = Peek().Value;
+                    Advance();  
+                }
+                if (CheckValue("Single"))
+                {
+                    comprobar = Consume(Token_Type.COLON,"se esperaba un :");
+                    if (comprobar == null) return null;
+                    if(Check(Token_Type.BOOLEAN)) selector.Single = Convert.ToBoolean(Peek().Value);    
+                    Advance();
+                }
+                
+            }
+
+            return selector;
+        }
+
+        private CardASTNode MeterenRange(CardASTNode card) 
+        {
+            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un delimitador");
+            if (comprobar == null) { return null; }
+            while (Peek().Type != Token_Type.DELIMITIER) 
+            {
+                if (Peek().Type == Token_Type.STRING) { card.Range.Add(new Node(Peek().Type,Peek().Value));}
+                Advance();
+                if (Peek().Type != Token_Type.DELIMITIER) { comprobar = Consume(Token_Type.COMMA, "se esperaba una comma");}
+            }
+            Advance();
+            return card;
+        }
+
+        private CardASTNode Meter(string value,CardASTNode card) 
+        {
+            bool t = false, n = false , f = false;
+            if (value == "Name") { n = true; }
+            else if (value == "Type") { t = true; }
+            else if (value == "Faction") { f = true; }
+            comprobar = Consume(Token_Type.IDENTIFIER, "se esperaba el type");
+            if (comprobar == null) { return null; }
+            while (Peek().Type != Token_Type.STRING) { Advance(); }
+            if (t) { card.Type = Peek().Value; }
+            else if (n) { card.Name = Peek().Value; }
+            else if (f) { card.Faction = Peek().Value; }
+            Advance();
+            comprobar = Consume(Token_Type.COMMA,"se esperaba una ,");
+            if (comprobar == null) { return null; }
+            return card;
+        }
+
+        private ASTnode CreateNode() {return LogicalNode();}
+
         private ASTnode LogicalNode()
         {
             ASTnode node = EqualASTNode();
@@ -350,13 +490,25 @@ namespace Skyrim_Interpreter
 
         private ASTnode ColonNode() 
         {
-            ASTnode node = UnaryNode();
+            ASTnode node = AccessNode();
             while (Match(Token_Type.COLON)) 
             {
                 Console.WriteLine(Peek());
                 Token col = Previous();
-                ASTnode right = UnaryNode();
+                ASTnode right = AccessNode();
                 node = new ColonASTNode(node,right);
+            }
+            return node;
+        }
+
+        private ASTnode AccessNode() 
+        {
+            ASTnode node = UnaryNode();
+            while (Match(Token_Type.ACCESS))
+            {
+                Token access = Previous();
+                ASTnode right = UnaryNode();
+                node = new AccessASTNode(node,right);
             }
             return node;
         }
@@ -477,7 +629,7 @@ namespace Skyrim_Interpreter
             return new ForASTNode(block);
         }
 
-
+        //--------------------------------------------------------------------------------------------------------------------------
         //----------------------------------------------------------------------------------------------------------------------------------
         public static void MandarPython(string args)
             {
