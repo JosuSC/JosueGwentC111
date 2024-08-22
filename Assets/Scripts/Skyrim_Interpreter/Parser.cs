@@ -104,6 +104,7 @@ namespace Skyrim_Interpreter
 
         public void Parse()
         {
+           
             KeywordNode();
         }
 
@@ -117,13 +118,29 @@ namespace Skyrim_Interpreter
                 if (keyword.Value == "effect") {MyTree.children.Add (EffectNode()); }
                 else if (keyword.Value == "card") { MyTree.children.Add(CardNode()); }
             }
-            if (Check(Token_Type.EOF))
-            {
-                return MyTree;
-            }
-            else { return CreateNode(); }
-             
+            Console.WriteLine(Peek()) ;
+                while (Peek().Type != Token_Type.EOF) 
+                {
+                  Console.WriteLine(Peek());
+                    if (Peek().Value != "}" && Peek().Value != ";")
+                    {
+                        if (Peek().Value == "card" || Peek().Value == "effect")
+                        {
+                            return KeywordNode();
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    Advance();
+                }
+            return MyTree;
         }
+
+        #region Effect
+
+        //creamos el nodo effect
         private EffectASTNode EffectNode()
         {
             EffectASTNode effect = new EffectASTNode();
@@ -141,7 +158,7 @@ namespace Skyrim_Interpreter
                 effect.Name = Peek().Value;                           
                Advance();
              comprobar =  Consume(Token_Type.COMMA,"se esperaba una comma despues del name");
-                if (comprobar == null) { return null;}
+                if (comprobar == null) { Console.WriteLine("null  en 144"); return null;}
             }
             else { return null; }   
             if (Peek().Value == "Params") 
@@ -149,33 +166,37 @@ namespace Skyrim_Interpreter
                 Advance();
                Params parametros = new Params();
                parametros = ParamsNode(parametros);
-                if (parametros == null) return null; 
+                if (parametros == null) { Console.WriteLine("null en 152"); return null; } 
                 effect.children.Add(parametros);
                 effect.Params= parametros;  
             }
-            Console.WriteLine(Peek());                  //hasta aqui esta perfecto
+            Console.WriteLine(Peek());                 
 
             if (Peek().Value == "Action")
             {
                 Advance();
                 ActionASTNode action = new ActionASTNode(); 
-             action  =   ActionNode( action);
+                action  =   ActionNode( action);
                 effect.children.Add(action);
                 effect.Action= action;  
                 Advance(); 
-            }
-            comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un delimitaador");
-            if (comprobar == null) { return null; }
+            }                                                  //hasta aqui bien
+            Console.WriteLine(Peek());
+            comprobar = Consume(Token_Type.SEMICOLON,"Se esperaba un ;");
+            if (comprobar == null) { Console.WriteLine("null en 168"); return null; }
+            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un delitador");
+            if (comprobar == null) { Console.WriteLine("null en 173"); return null; }
             return effect;  
         }
 
+        //los parametros de effect,en el caso que tenga
         private Params ParamsNode(Params parametros)
         {
             Console.WriteLine(Peek());
            comprobar = Consume(Token_Type.COLON,"Se esperaban dos puntos");
-            if (comprobar == null) { return null; }
+            if (comprobar == null) { Console.WriteLine("null en 176"); return null; }
             comprobar = Consume(Token_Type.DELIMITIER,"Se Esperaba un {");
-            if (comprobar == null) { return null; }
+            if (comprobar == null) { Console.WriteLine("null en 178"); return null; }
             while (Peek().Value != "}") 
             {
                 Console.WriteLine(Peek());
@@ -186,10 +207,11 @@ namespace Skyrim_Interpreter
             return parametros;
         }
 
+        //el actio de effect
         private ActionASTNode ActionNode(ActionASTNode action)
         {
             comprobar = Consume(Token_Type.COLON,"se esperaba un : ");
-            if (comprobar == null) { return null; }
+            if (comprobar == null) { Console.WriteLine("null en 192"); return null; }
             if (Check(Token_Type.LEFT_PAREN))
             {
                 Advance();
@@ -199,18 +221,20 @@ namespace Skyrim_Interpreter
                     action.parametros.Add(CreateNode());
                     Console.WriteLine(Peek());
                 }
+               
             }
-            else { return null; }
+            else { Console.WriteLine("null en 203"); return null; }
             Advance();
            comprobar = Consume(Token_Type.LAMBDA,"Se esperaba un =>");
-            if (comprobar == null) { return null; }
+            action.Lambda = new LambdaForAction(action.parametros,action.actions);
+            if (comprobar == null) { Console.WriteLine("null en 206"); return null; }
             if (Check(Token_Type.DELIMITIER))
             {
                 Advance();  
                 while (Peek().Value != "}")         //hasta aqui estas bien
                 {
                     Console.WriteLine(Peek());  
-                  action.actions.Add(CreateNode());
+                    action.actions.Add(CreateNode());
                     Console.WriteLine(Peek());
                 }
             }
@@ -218,30 +242,34 @@ namespace Skyrim_Interpreter
             return action;
         }
 
+        #endregion
+
+
+        #region Card
         private ASTnode CardNode() 
         {
             CardASTNode card = new CardASTNode();
             Advance();
             comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un { despues de card");
-            if (comprobar == null) { return null;}
+            if (comprobar == null) { Console.WriteLine("null en 253"); return null;}
             card = Meter("Name", card);
-            if (card == null) { return null; };
+            if (card == null) { Console.WriteLine( "null en 255"); return null; };
             card = Meter("Type", card);
-            if (card == null) { return null; };
+            if (card == null) { Console.WriteLine("null en 257"); return null; };
             card = Meter("Faction", card);
-            if (card == null) { return null; };
-
+            if (card == null) { Console.WriteLine("null en 259"); return null; };
+                                                                                        //hasta aqui esta perfecto
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Power")
             {
                 Advance();
                 while (Peek().Type != Token_Type.NUMBER) { Advance(); }
                 card.Power = Convert.ToInt32(Peek().Value);
                 Advance();
-                comprobar = Consume(Token_Type.COMMA,"se esperaba una ,");
-                if (comprobar == null) { return null;}
+                comprobar = Consume(Token_Type.COMMA, "se esperaba una ,");
+                if (comprobar == null) { return null; }
             }
-            else return null;
-
+            else { Console.WriteLine("null en 270"); return null; }
+                                                                                          //bien
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Range")
             {
                 Advance();
@@ -252,8 +280,12 @@ namespace Skyrim_Interpreter
             }
             else return null;
 
+            Console.WriteLine(Peek());
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "OnActivation")
             {
+                Advance();
+                Console.WriteLine(Peek());
+                comprobar = Consume(Token_Type.COLON,"se esperaba : despues de OnActivation");
                 comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un [");
                 if (comprobar == null) return null;
                 card = OnActivationList(card);
@@ -266,6 +298,7 @@ namespace Skyrim_Interpreter
         {
             while (Peek().Value != "]") 
             {
+                Console.WriteLine(Peek());
                 if (Peek().Value == "{")
                 {
                     Advance();
@@ -278,23 +311,25 @@ namespace Skyrim_Interpreter
                         }  
                     }
                     Advance();
-                }
+                }                                                     // esta bien
 
-                if (Peek().Value == "Selector")
+                if (CheckValue("Selector"))
                 {
                     Advance();
                     comprobar = Consume(Token_Type.COLON,"se esperaba :");
                     if (comprobar == null) return null;
                     comprobar = Consume(Token_Type.DELIMITIER,"se esperaba {");
                     if (comprobar == null) return null;
-                    while (Peek().Value != "}") 
+                    while (!CheckValue("}")) 
                     {
                        card.OnActivation.Add(SelectorForCard());  
                     }
-
+                  
                 }
+                Advance();
+                Console.WriteLine(Peek());                                 //hasta aqui esta bien
             }
-
+            Advance();  
             return card;
         }
 
@@ -303,26 +338,46 @@ namespace Skyrim_Interpreter
             EffectCardNode effcard = new EffectCardNode();
             comprobar = Consume(Token_Type.COLON,"se esperaba un :");
             if (comprobar == null) return null;
+            Console.WriteLine(Peek());
             if (Peek().Type == Token_Type.STRING)
             {
                 effcard.Name = Peek().Value;
+                Advance();
                 return effcard; 
             }
             comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un {");
             if (comprobar == null) return null;
             while (Peek().Value != "}") 
             {
-                if (Peek().Value == "Name") { Advance(); if (!Check(Token_Type.COLON)) { Console.WriteLine("Se esperaba dos puntos");return null; }; while (Peek().Type != Token_Type.STRING) { Advance(); } effcard.Name = Peek().Value; comprobar = Consume(Token_Type.COMMA, "se esperaba ,");}
-                else if (Peek().Value == "Amount") { Advance(); comprobar = Consume(Token_Type.COLON, "se esparaba :"); while(Peek().Type != Token_Type.COMMA) { effcard.Amaunts.Add(CreateNode()); }; }
+                Console.WriteLine(Peek());
+                if (Peek().Value == "Name") 
+                { 
+                    Advance(); 
+                    if (!Check(Token_Type.COLON)) 
+                    {
+                        Console.WriteLine("Se esperaba dos puntos");
+                        return null; };
+                    while (Peek().Type != Token_Type.STRING) { Advance(); }
+                    effcard.Name = Peek().Value;
+                    Advance();
+                    comprobar = Consume(Token_Type.COMMA, "se esperaba ,");
+                }
+                else if (Peek().Value == "Amount") 
+                { 
+                    Advance();
+                    comprobar = Consume(Token_Type.COLON, "se esparaba :");
+                    while(Peek().Type != Token_Type.COMMA) { effcard.Amaunts.Add(CreateNode()); };
+                    Advance();  
+                }
             }
             return effcard;
         }
-
         private SelectorCardNode SelectorForCard() 
         {
             SelectorCardNode selector = new SelectorCardNode();
             if (CheckValue("Source"))
             {
+               Advance();   
                 comprobar = Consume(Token_Type.COLON, "se esperaba :");
                 if (comprobar == null) return null;
                 if (Check(Token_Type.STRING))
@@ -330,21 +385,29 @@ namespace Skyrim_Interpreter
                     selector.Source = Peek().Value;
                     Advance();  
                 }
-                if (CheckValue("Single"))
-                {
-                    comprobar = Consume(Token_Type.COLON,"se esperaba un :");
-                    if (comprobar == null) return null;
-                    if(Check(Token_Type.BOOLEAN)) selector.Single = Convert.ToBoolean(Peek().Value);    
-                    Advance();
-                }
-                
             }
-
+            if (CheckValue("Single"))
+            {
+                Advance();
+                comprobar = Consume(Token_Type.COLON, "se esperaba un :");
+                if (comprobar == null) return null;
+                if (Check(Token_Type.BOOLEAN)) selector.Single = Convert.ToBoolean(Peek().Value);
+                Advance();
+            }
+            comprobar = Consume(Token_Type.COMMA, "se esperaba ,");
+            if (CheckValue("Predicate"))
+            {
+                Advance();
+                comprobar = Consume(Token_Type.COLON,"se esperaba : despuesde Predicate");
+                selector.Predicate = CreateNode();
+                Console.WriteLine(Peek());
+            }
             return selector;
         }
 
         private CardASTNode MeterenRange(CardASTNode card) 
         {
+            comprobar = Consume(Token_Type.COLON,"se esperaba :despues de Range");
             comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un delimitador");
             if (comprobar == null) { return null; }
             while (Peek().Type != Token_Type.DELIMITIER) 
@@ -375,8 +438,13 @@ namespace Skyrim_Interpreter
             return card;
         }
 
+        #endregion
+
+        #region Make nodos
+        //creamos nodos
         private ASTnode CreateNode() {return LogicalNode();}
 
+        //&& y ||
         private ASTnode LogicalNode()
         {
             ASTnode node = EqualASTNode();
@@ -390,6 +458,7 @@ namespace Skyrim_Interpreter
            return node;
         }
 
+        // == y !=
         private ASTnode EqualASTNode()
         {
             ASTnode node = ComparasionASTNode();
@@ -402,6 +471,8 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
+
+        // < ,> , <= , >=
         private ASTnode ComparasionASTNode() 
         {
             ASTnode node = ConcatenationASTNode();
@@ -416,6 +487,7 @@ namespace Skyrim_Interpreter
             }
             return node;        
         }
+        //@@
         private ASTnode ConcatenationASTNode() 
         {
             ASTnode node = TermASTNode();
@@ -427,6 +499,7 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
+        // + , -
         private ASTnode TermASTNode() 
         {
             ASTnode node = FactorNode();
@@ -443,6 +516,7 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
+        // *,/,%
         private ASTnode FactorNode() 
         {
             ASTnode node = PowerNode();
@@ -456,6 +530,7 @@ namespace Skyrim_Interpreter
             }
             return node;    
         }
+        //^
         private ASTnode PowerNode() 
         {
             ASTnode node = AssignationNode();
@@ -468,6 +543,7 @@ namespace Skyrim_Interpreter
             return node;
         }
 
+        //=
         private ASTnode AssignationNode() 
         {
           ASTnode node = AssignemetWithValue();
@@ -479,7 +555,7 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
-
+        // -=, +=, *=, /=, %=
         private ASTnode AssignemetWithValue() 
         {
             ASTnode node = ColonNode();
@@ -495,7 +571,7 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
-
+        // :
         private ASTnode ColonNode() 
         {
             ASTnode node = AccessNode();
@@ -508,19 +584,32 @@ namespace Skyrim_Interpreter
             }
             return node;
         }
-
+        //.
         private ASTnode AccessNode() 
         {
-            ASTnode node = UnaryNode();
+            ASTnode node = LambdaASTnode();
             while (Match(Token_Type.ACCESS))
             {
                 Token access = Previous();
-                ASTnode right = UnaryNode();
+                ASTnode right = LambdaASTnode();
                 node = new AccessASTNode(node,right);
             }
             return node;
         }
 
+        private ASTnode LambdaASTnode() 
+        {
+            ASTnode node = UnaryNode();
+            while (Match(Token_Type.LAMBDA)) 
+            {
+                Token lamb = Previous();
+                ASTnode right = UnaryNode();
+                node = new LambdaASTNode(node,right);
+            }
+            return node;    
+        }
+
+        //! , ++, --
         private ASTnode UnaryNode() 
         {
             
@@ -532,7 +621,7 @@ namespace Skyrim_Interpreter
             }
             return LiteralNode();
         }
-
+        //string ,number,boolean
         private ASTnode LiteralNode() 
         {
             while (Match(Token_Type.NUMBER,Token_Type.BOOLEAN,Token_Type.STRING))
@@ -549,6 +638,7 @@ namespace Skyrim_Interpreter
             return PrimaryNode();
         }
 
+        //keyweords que no son ,ni effect , ni card
         public ASTnode PrimaryNode() 
         {
             if (Match(Token_Type.KEYWORD))
@@ -556,8 +646,7 @@ namespace Skyrim_Interpreter
                 Token node = Previous();
                 if (node.Value == "if") { return IfASTNode(); }
                 else if (node.Value == "while") { return WhileNode(); }
-                else if (node.Value == "for") { }
-                else if (true) { }
+                else if (node.Value == "for") { return ForNode(); }
             }
             if (Match(Token_Type.COMMA))
             {
@@ -567,6 +656,7 @@ namespace Skyrim_Interpreter
             {
                 return CreateNode();
             }
+           
           return KeywordNode();
         }
 
@@ -611,7 +701,7 @@ namespace Skyrim_Interpreter
             Console.WriteLine(Peek());
            comprobar = Consume(Token_Type.DELIMITIER, "se esperaba un {");
             if (comprobar == null) { return null; }
-            while (Peek().Type != Token_Type.DELIMITIER) { Console.WriteLine(Peek()); block.Block.param.Add(CreateNode()); Console.WriteLine(Peek());}
+            while (Peek().Type != Token_Type.DELIMITIER) { Console.WriteLine(Peek()); block.Block.param.Add(CreateNode()); Console.WriteLine(Peek());if (Check(Token_Type.SEMICOLON)) { Advance();} }
            comprobar = Consume(Token_Type.DELIMITIER, "se esperaba un }");
             if (comprobar == null) { return null; }
             return new WhileASTNode(condition, block);  
@@ -619,19 +709,20 @@ namespace Skyrim_Interpreter
 
         public ASTnode ForNode() 
         {
+            Console.WriteLine(Peek());  
             BlockASTNode block = new BlockASTNode();
-            string comprobacion = "";
+           
             if (Peek().Type == Token_Type.IDENTIFIER)
             {
-                comprobacion = Peek().Value;
-                PeekNext();
+               Advance();
                 if (Peek().Type == Token_Type.IDENTIFIER && Peek().Value == "in")
                 {
-                    PeekNext();
-                    if (Peek().Value == comprobacion)
+                    Advance();
+                    if (Peek().Type == Token_Type.IDENTIFIER)
                     {
+                        Advance();
                         Consume(Token_Type.DELIMITIER, "se esperaba una {");
-                        while (Peek().Type != Token_Type.DELIMITIER) { block.Block.param.Add(CreateNode()); }
+                        while (Peek().Type != Token_Type.DELIMITIER) { Console.WriteLine(Peek()); block.Block.param.Add(CreateNode()); Console.WriteLine(Peek()); }
                     }
                     else { throw new Exception(); }
                 }
@@ -641,7 +732,7 @@ namespace Skyrim_Interpreter
 
             return new ForASTNode(block);
         }
-
+        #endregion
         //--------------------------------------------------------------------------------------------------------------------------
         //----------------------------------------------------------------------------------------------------------------------------------
         public static void MandarPython(string args)
@@ -801,7 +892,6 @@ namespace Skyrim_Interpreter
                 lastnode = newnode;
             }
         }
-
 
         private void SonOf(Node son,Node father) 
         {

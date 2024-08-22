@@ -30,7 +30,7 @@ namespace Skyrim_Interpreter
          public List<Token> Tokenizer() 
         {
             // ignore white spaces 
-            source = source.Replace(" ", string.Empty);
+           // source = source.Replace(" ", string.Empty);
 
             //regex 
             string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
@@ -117,7 +117,7 @@ namespace Skyrim_Interpreter
             //we need to scaning the source
             while (position < source.Length ) 
             {
-                if (source[position] == ' ') continue;
+                if (source[position] == ' ') { source = source.Substring(1); continue; }
                 string bestmatch = null;
                 int bestlength = 0;
                 Token_Type besttokentype  = Token_Type.EOF;
@@ -134,25 +134,24 @@ namespace Skyrim_Interpreter
                 }
                 if ( bestmatch == null ) 
                 {
-                    source = source.Substring(1).Replace(" ",string.Empty);
+                    source = source.Substring(1).Replace(" "," ");
                     continue;
                 }
                 tokens.Add(new Token(besttokentype, bestmatch));
-                source = source.Substring(bestlength).Replace(" ",string.Empty);
+                source = source.Substring(bestlength).Replace(" "," ");
                 if (besttokentype == Token_Type.UNARY && !string.IsNullOrEmpty(source))
                 {
                     var next = Regex.Match(source, unaryoperations);
                     if (next.Success && next.Index == 0)
                     {
                         tokens[tokens.Count - 1].Value += next.Value;
-                        source = source.Replace(" ", string.Empty);
+                        source = source.Replace(" ", " ");
                     }
                 }
             }
             tokens.Add(new Token(Token_Type.EOF,""));
             return tokens;
-        }
-    
+         }
 
         //obtener la linea
         private int GetLineNumber(string source, int position)
@@ -209,10 +208,11 @@ public class Program
 
         string ifproof = "if(5 > 3 ){15 + 20}";
         string whileproof = "while(5 < 10){ 10 + 20 }";
-        string effectproof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n               while (i < amount) target.Power -= 1;       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
-        string proof = "context.trigger";
+        string effectproof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n               while (i < amount){ target.Power -= 1;}       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
+        string cardproof = "card\r\n{\r\nName: \"Oro\",\r\n  Type: \"Beluga\",\r\n  Faction: \"Northern Realms\",\r\n  Power: 10,\r\n  Range: [\"Melee\", \"Ranged\"],\r\n  OnActivation:\r\n    [\r\n    {\r\n    Effect:\r\n        {\r\n        Name: \"Damage\",\r\n                Amount: 5,\r\n        }\r\n    Selector: \r\n        {\r\n            Source:\"board,\"\r\n                Single: false,\r\n                Predicate:(unit) => unit.Faction == \"Northern\"@@\"Realms\"\r\n        }\r\n        {\r\n            Effect:\"Draw\"\r\n        }\r\n\r\n    }    \r\n        \r\n        ]\r\n  \r\n\r\n} ";
+        string proof = "10+10 * 20 - 10";
 
-        Lexer mylexer = new Lexer(effectproof);
+        Lexer mylexer = new Lexer(cardproof);
 
         List<Token> mytokens = new List<Token>();
         mytokens = mylexer.Tokenizer();
@@ -224,7 +224,7 @@ public class Program
         //}
         Parser par = new Parser(mytokens);
 
-       par.Parse();
+         par.Parse();
 
        // par.ART();
          

@@ -315,11 +315,15 @@ namespace Skyrim_Interpreter
             this.right = right;
         }
     }
+
+   
     public class ActionASTNode : ASTnode
     {
 
         public List<ASTnode> parametros { get; set; }
         public List<ASTnode> actions { get; set; }
+        
+        public LambdaForAction Lambda {get; set;}
         public ActionASTNode()
         {
             parametros= new List<ASTnode>();    
@@ -428,8 +432,6 @@ namespace Skyrim_Interpreter
         public int Power { get; set;}
         public List<ASTnode> Range { get; set;}
         public List<ASTnode> OnActivation { get; set; }
-        EffectCardNode EffectCardNode { get; set; }
-        SelectorCardNode SelectorCardNode { get; set; } 
         public CardASTNode()
         {
                 Range = new List<ASTnode>();    
@@ -453,9 +455,34 @@ namespace Skyrim_Interpreter
         public string Source { get; set;}
         public bool Single { get; set;}
 
+        public ASTnode Predicate { get; set; }
         public SelectorCardNode()
         {
             Single = false;
+        }
+    }
+
+
+    public class LambdaForAction  :ASTnode
+    {
+        public List<ASTnode> left { get; set; }
+        public List<ASTnode> right { get; set; }
+
+        public LambdaForAction(List<ASTnode> left, List<ASTnode> right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+    }
+    public class LambdaASTNode : ASTnode 
+    {
+        Token_Type type = Token_Type.LAMBDA;
+        public ASTnode Left { get; set; }
+        public ASTnode Right { get; set; }
+        public LambdaASTNode(ASTnode left,ASTnode right)
+        {
+                Left = left;    
+                Right = right;
         }
 
     }
