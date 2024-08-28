@@ -104,7 +104,6 @@ namespace Skyrim_Interpreter
 
         public void Parse()
         {
-           
             KeywordNode();
         }
 
@@ -243,7 +242,6 @@ namespace Skyrim_Interpreter
         }
 
         #endregion
-
 
         #region Card
         private ASTnode CardNode() 
@@ -512,7 +510,6 @@ namespace Skyrim_Interpreter
                 {
                     node = new MinusASTNode(node, right);   
                 }
-
             }
             return node;
         }
@@ -612,7 +609,6 @@ namespace Skyrim_Interpreter
         //! , ++, --
         private ASTnode UnaryNode() 
         {
-            
             while (Match(Token_Type.NOT,Token_Type.UNARY)) 
             {
                 Token unary= Previous();
@@ -659,7 +655,6 @@ namespace Skyrim_Interpreter
            
           return KeywordNode();
         }
-
         public ASTnode IfASTNode() 
         {
             //creamos el nodo para la condicicon y el nodo para el bloque
@@ -735,180 +730,180 @@ namespace Skyrim_Interpreter
         #endregion
         //--------------------------------------------------------------------------------------------------------------------------
         //----------------------------------------------------------------------------------------------------------------------------------
-        public static void MandarPython(string args)
-            {
-                string pythonScriptPath = @"C:\Python_Programs\PythonApplication1\PythonApplication1\PythonApplication1.py";
-        string command = $"\"{pythonScriptPath}\" " + args; // Enclose the path in quotes to handle spaces
+        //public static void MandarPython(string args)
+        //    {
+        //        string pythonScriptPath = @"C:\Python_Programs\PythonApplication1\PythonApplication1\PythonApplication1.py";
+        //string command = $"\"{pythonScriptPath}\" " + args; // Enclose the path in quotes to handle spaces
 
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            WindowStyle = ProcessWindowStyle.Hidden,
-            RedirectStandardOutput = true,
-            UseShellExecute = false, // Keep this false for shell commands
-            CreateNoWindow = true,
-            FileName = "python.exe", // Specify the Python interpreter
-            Arguments = command
-        };
+        //ProcessStartInfo startInfo = new ProcessStartInfo
+        //{
+        //    WindowStyle = ProcessWindowStyle.Hidden,
+        //    RedirectStandardOutput = true,
+        //    UseShellExecute = false, // Keep this false for shell commands
+        //    CreateNoWindow = true,
+        //    FileName = "python.exe", // Specify the Python interpreter
+        //    Arguments = command
+        //};
 
-        Process process = Process.Start(startInfo);
-        string result = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-        Console.WriteLine(result);
-            }
+        //Process process = Process.Start(startInfo);
+        //string result = process.StandardOutput.ReadToEnd();
+        //process.WaitForExit();
+        //Console.WriteLine(result);
+        //    }
 
-           public string Word()
-           {
-              Node n = ART();
-              string t =  MakeList(n);
-              return t;
-           }
+        //   public string Word()
+        //   {
+        //      Node n = ART();
+        //      string t =  MakeList(n);
+        //      return t;
+        //   }
 
          
-          public string MakeList(Node root)
-          {
-            List<(Node,int)> exist = new List<(Node,int)>(); 
-            exist.Add((root,root.Children.Count));
-            int pivote =0;
+        //  public string MakeList(Node root)
+        //  {
+        //    List<(Node,int)> exist = new List<(Node,int)>(); 
+        //    exist.Add((root,root.Children.Count));
+        //    int pivote =0;
 
-             while(pivote < exist.Count ){
+        //     while(pivote < exist.Count ){
             
-                 Meter(exist[pivote].Item1,  exist );
+        //         Meter(exist[pivote].Item1,  exist );
                 
-              pivote ++;
-             }
+        //      pivote ++;
+        //     }
             
-            List<string> s = new List<string>();
-            int count=0;
-           foreach(var item in exist)
-           {
-              s.Add(item.Item1.Value +  count  + $"{item.Item1.Children.Count}");
-              count++;
-           }
+        //    List<string> s = new List<string>();
+        //    int count=0;
+        //   foreach(var item in exist)
+        //   {
+        //      s.Add(item.Item1.Value +  count  + $"{item.Item1.Children.Count}");
+        //      count++;
+        //   }
             
-            string w = "";
-             for(int h = 0 ; h < s.Count;h++)
-             {
-                w += s[h] + " ";
-             }
+        //    string w = "";
+        //     for(int h = 0 ; h < s.Count;h++)
+        //     {
+        //        w += s[h] + " ";
+        //     }
 
-             return w;
-          }
+        //     return w;
+        //  }
 
-          private void Meter(Node father, List<(Node,int)> t)
-          {
-             for(int i = 0 ; i < father.Children.Count;i++)
-             {
-                   t.Add((father.Children[i],father.Children[i].Children.Count));
-             }
-          }
-
-
-        Dictionary<string, int> Arit = new Dictionary<string, int>()
-        {
-            { "+", 1 },
-            { "-",1 },
-            { "*",0 },
-            { "/",0 },
-            { "%",-1},
-            { "^",-1 }  
-        };
-
-        public Node ART() 
-        {
-           Node aa = Aritmetics(this.tokens,0,null,null,null); 
-           return  aa;
-        }
+        //  private void Meter(Node father, List<(Node,int)> t)
+        //  {
+        //     for(int i = 0 ; i < father.Children.Count;i++)
+        //     {
+        //           t.Add((father.Children[i],father.Children[i].Children.Count));
+        //     }
+        //  }
 
 
-        private Node Aritmetics(List<Token> tokens,int count,Node lastNumber,Node lastOperator,Node maxOperator) 
-        {
-            if (count == tokens.Count)
-            {
-                SonOf(lastNumber,lastOperator);
-                return maxOperator;
-            }
+        //Dictionary<string, int> Arit = new Dictionary<string, int>()
+        //{
+        //    { "+", 1 },
+        //    { "-",1 },
+        //    { "*",0 },
+        //    { "/",0 },
+        //    { "%",-1},
+        //    { "^",-1 }  
+        //};
 
-            if (Arit.ContainsKey(tokens[count].Value))
-            {
-                bool mayor = false;
-                Node newOpeator = new Node(tokens[count].Type, tokens[count].Value);
-                CompararaConMayor(ref newOpeator,ref maxOperator,ref mayor,ref lastNumber,ref lastOperator);
-                if (!mayor)
-                {
-                    CompararConAnterior(ref newOpeator,ref lastOperator,ref lastNumber,ref maxOperator);
-                }
-             return  Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
-            }
-            else
-            {
-                lastNumber = new Node(tokens[count].Type, tokens[count].Value);
-             return   Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
-            }
-        }
+        //public Node ART() 
+        //{
+        //   Node aa = Aritmetics(this.tokens,0,null,null,null); 
+        //   return  aa;
+        //}
 
-        private void CompararConAnterior(ref Node newnode,ref Node lastNode,ref Node lastnumber,ref Node max) 
-        {
-            if (lastNode == null)
-            {
-                SonOf(lastnumber, newnode);
-                lastNode = newnode;
-                return;
-            }
-            else if (Arit[newnode.Value] >= Arit[lastNode.Value])
-            {
-                SonOf(lastnumber,lastNode);
-                SonOf(lastNode,newnode);
 
-                if (max.Children.Contains(lastNode))
-                {
-                    Quitar(lastNode, max);
-                    SonOf(newnode, max);
-                }
-            }
-            else if (Arit[newnode.Value] < Arit[lastNode.Value])
-            {
-                SonOf(lastnumber,newnode);
-                SonOf(newnode,lastNode);
-            }
-            lastNode = newnode;
-        }
+        //private Node Aritmetics(List<Token> tokens,int count,Node lastNumber,Node lastOperator,Node maxOperator) 
+        //{
+        //    if (count == tokens.Count)
+        //    {
+        //        SonOf(lastNumber,lastOperator);
+        //        return maxOperator;
+        //    }
 
-        private void CompararaConMayor(ref Node newnode,ref Node max,ref bool m,ref Node lastnumber,ref Node lastnode) 
-        {
-            if (max == null)
-            {
-                SonOf(lastnumber, newnode);
-                max = newnode;
-                m = true;  
-                lastnode= newnode;   
-                return;
-            }
-            else if (Arit[max.Value] <= Arit[newnode.Value])
-            {
-                SonOf(max,newnode);
-                SonOf(lastnumber,lastnode);
-                max= newnode;
-                m = true;
-                lastnode = newnode;
-            }
-        }
+        //    if (Arit.ContainsKey(tokens[count].Value))
+        //    {
+        //        bool mayor = false;
+        //        Node newOpeator = new Node(tokens[count].Type, tokens[count].Value);
+        //        CompararaConMayor(ref newOpeator,ref maxOperator,ref mayor,ref lastNumber,ref lastOperator);
+        //        if (!mayor)
+        //        {
+        //            CompararConAnterior(ref newOpeator,ref lastOperator,ref lastNumber,ref maxOperator);
+        //        }
+        //     return  Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
+        //    }
+        //    else
+        //    {
+        //        lastNumber = new Node(tokens[count].Type, tokens[count].Value);
+        //     return   Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
+        //    }
+        //}
 
-        private void SonOf(Node son,Node father) 
-        {
-            father.Children.Add(son);
-        }
+        //private void CompararConAnterior(ref Node newnode,ref Node lastNode,ref Node lastnumber,ref Node max) 
+        //{
+        //    if (lastNode == null)
+        //    {
+        //        SonOf(lastnumber, newnode);
+        //        lastNode = newnode;
+        //        return;
+        //    }
+        //    else if (Arit[newnode.Value] >= Arit[lastNode.Value])
+        //    {
+        //        SonOf(lastnumber,lastNode);
+        //        SonOf(lastNode,newnode);
 
-        private void Quitar(Node son,Node father) 
-        {
-            for (int i = 0; i < father.Children.Count; i++)
-            {
-                if (father.Children[i].Equals(son))
-                {
-                    father.Children.RemoveAt(i);
-                }
+        //        if (max.Children.Contains(lastNode))
+        //        {
+        //            Quitar(lastNode, max);
+        //            SonOf(newnode, max);
+        //        }
+        //    }
+        //    else if (Arit[newnode.Value] < Arit[lastNode.Value])
+        //    {
+        //        SonOf(lastnumber,newnode);
+        //        SonOf(newnode,lastNode);
+        //    }
+        //    lastNode = newnode;
+        //}
 
-            }
-        }
+        //private void CompararaConMayor(ref Node newnode,ref Node max,ref bool m,ref Node lastnumber,ref Node lastnode) 
+        //{
+        //    if (max == null)
+        //    {
+        //        SonOf(lastnumber, newnode);
+        //        max = newnode;
+        //        m = true;  
+        //        lastnode= newnode;   
+        //        return;
+        //    }
+        //    else if (Arit[max.Value] <= Arit[newnode.Value])
+        //    {
+        //        SonOf(max,newnode);
+        //        SonOf(lastnumber,lastnode);
+        //        max= newnode;
+        //        m = true;
+        //        lastnode = newnode;
+        //    }
+        //}
+
+        //private void SonOf(Node son,Node father) 
+        //{
+        //    father.Children.Add(son);
+        //}
+
+        //private void Quitar(Node son,Node father) 
+        //{
+        //    for (int i = 0; i < father.Children.Count; i++)
+        //    {
+        //        if (father.Children[i].Equals(son))
+        //        {
+        //            father.Children.RemoveAt(i);
+        //        }
+
+        //    }
+        //}
 
     }
 
