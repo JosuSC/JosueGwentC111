@@ -602,7 +602,7 @@ namespace Skyrim_Interpreter
                 Token lamb = Previous();
                 ASTnode right = UnaryNode();
                 node = new LambdaASTNode(node,right);
-            }
+            } 
             return node;    
         }
 
@@ -640,8 +640,7 @@ namespace Skyrim_Interpreter
             if (Match(Token_Type.KEYWORD))
             {
                 Token node = Previous();
-                if (node.Value == "if") { return IfASTNode(); }
-                else if (node.Value == "while") { return WhileNode(); }
+                 if (node.Value == "while") { return WhileNode(); }
                 else if (node.Value == "for") { return ForNode(); }
             }
             if (Match(Token_Type.COMMA))
@@ -655,35 +654,6 @@ namespace Skyrim_Interpreter
            
           return KeywordNode();
         }
-        public ASTnode IfASTNode() 
-        {
-            //creamos el nodo para la condicicon y el nodo para el bloque
-            ConditionalASTNode condition = new ConditionalASTNode();
-            BlockASTNode block = new BlockASTNode();
-            
-          comprobar =  Consume(Token_Type.LEFT_PAREN,"Se espera un ( despues del if");
-            if (comprobar == null) { return null;}
-            while (Peek().Type != Token_Type.RIGHT_PAREN) 
-            {
-                if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if");  }
-                Console.WriteLine(Peek());
-                condition.condicion.param.Add(CreateNode());
-                Console.WriteLine(Peek());
-            }
-            Advance();
-           comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un { despues de la condicion");
-            if (comprobar == null) { return null; }
-            while (Peek().Type != Token_Type.DELIMITIER)
-            {
-                if (Peek().Type == Token_Type.EOF) { break; throw new Exception("Esta mal el codigo en la condicion if"); }
-                Console.WriteLine(Peek());
-                block.Block.param.Add(CreateNode());
-                Console.WriteLine(Peek());
-            }
-            Advance();   
-            return new IfASTNode(condition, block); 
-        }
-
         public ASTnode WhileNode() 
         {
             Console.WriteLine(Peek());

@@ -8,7 +8,7 @@ namespace Skyrim_Interpreter
 {
     public class Game
     {
-      public static  Player[] players { get; set;}
+      public static  Player[] players { get; set;} 
         public Game()
         {
             players = new Player[2];
