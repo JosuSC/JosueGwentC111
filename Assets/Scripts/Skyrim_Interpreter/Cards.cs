@@ -21,13 +21,14 @@ namespace Skyrim_Interpreter
     {
         public string Name { get; set; }
         public string Faction { get; set;}
+        public string Type { get; set; }    
         public int Power { get; set; }
         public string[] Range { get; set; }
-        public List<Effect> OnActivation { get; set; }
+        public List<EffectDef> OnActivation { get; set; }
         public Player player { get; set; }
         public Cards() 
         {
-            OnActivation = new List<Effect>();  
+            OnActivation = new List<EffectDef>();  
             Range = new string[0];
         }
 
@@ -35,14 +36,13 @@ namespace Skyrim_Interpreter
         {
             return player.ID;
         }
-
     }
 
-    public class Effect 
+    public class EffectDef
     {
         public string Name { get; set;}
        List<string> Parameters { get; set; }
-        public Effect()
+        public EffectDef()
         {
             Parameters= new List<string>(); 
         }

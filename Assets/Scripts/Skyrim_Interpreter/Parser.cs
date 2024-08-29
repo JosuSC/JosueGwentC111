@@ -410,7 +410,7 @@ namespace Skyrim_Interpreter
             if (comprobar == null) { return null; }
             while (Peek().Type != Token_Type.DELIMITIER) 
             {
-                if (Peek().Type == Token_Type.STRING) { card.Range.Add(new Node(Peek().Type,Peek().Value));}
+                if (Peek().Type == Token_Type.STRING) { card.Range.Add(Peek().Value);}
                 Advance();
                 if (Peek().Type != Token_Type.DELIMITIER) { comprobar = Consume(Token_Type.COMMA, "se esperaba una comma");}
             }
@@ -543,28 +543,12 @@ namespace Skyrim_Interpreter
         //=
         private ASTnode AssignationNode() 
         {
-          ASTnode node = AssignemetWithValue();
+          ASTnode node = ColonNode();
             while (Match(Token_Type.ASSIGN) && Previous().Value == "=")
             {
                 Token assign= Previous();
-                ASTnode right = AssignemetWithValue();
-                node = new AssignASTNode(node,right);
-            }
-            return node;
-        }
-        // -=, +=, *=, /=, %=
-        private ASTnode AssignemetWithValue() 
-        {
-            ASTnode node = ColonNode();
-            while (Match(Token_Type.ASSIGN) && (Previous().Value == "+=" || Previous().Value == "-=" || Previous().Value == "/=" || Previous().Value == "%=" || Previous().Value == "*="))
-            {
-                Token awv = Previous();
                 ASTnode right = ColonNode();
-                    if (awv.Value == "+=") { node = new AssingnementWithValue(node,awv.Value,right); }
-               else if (awv.Value == "-=") { node = new AssingnementWithValue(node,awv.Value,right); }
-               else if (awv.Value == "*=") { node = new AssingnementWithValue(node,awv.Value,right); }
-               else if (awv.Value == "/=") { node = new AssingnementWithValue(node,awv.Value,right); }
-               else if (awv.Value == "%=") { node = new AssingnementWithValue(node,awv.Value,right); } 
+                node = new AssignASTNode(node,right);
             }
             return node;
         }
@@ -661,7 +645,7 @@ namespace Skyrim_Interpreter
             BlockASTNode block = new BlockASTNode();
            comprobar =   Consume(Token_Type.LEFT_PAREN,"se esperaba un (");
             if (comprobar == null) { return null; }
-            while (Peek().Type != Token_Type.RIGHT_PAREN) { Console.WriteLine(Peek()); condition.condicion.param.Add(CreateNode()); Console.WriteLine(Peek()); }
+            while (Peek().Type != Token_Type.RIGHT_PAREN) { Console.WriteLine(Peek()); condition.condicion = CreateNode(); Console.WriteLine(Peek()); }
             Advance();  
             Console.WriteLine(Peek());
            comprobar = Consume(Token_Type.DELIMITIER, "se esperaba un {");

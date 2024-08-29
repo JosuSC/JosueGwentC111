@@ -16,6 +16,24 @@ namespace Skyrim_Interpreter
         {
             children= new List<ASTnode>();
         }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            var results = new List<object>();
+            foreach (var child in children)
+            {
+                try
+                {
+                    var result = child.Evaluar(context, targets);
+                    results.Add(result);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error evaluating child node {child}: {ex.Message}");
+                    throw;
+                }
+            }
+            return results;
+        }
     }
 
     public class PlusAST : ASTnode
@@ -157,9 +175,6 @@ namespace Skyrim_Interpreter
             var right = this.right.Evaluar( context,  targets);
             return Ayudante.EvaluateBinary(left, this.type, right);
         }
-
-
-
     }
 
     public class NotEqualASTNode : ASTnode
@@ -230,19 +245,6 @@ namespace Skyrim_Interpreter
         } 
     }
 
-    public class AssingnementWithValue  : ASTnode
-    {
-        public Token_Type type = Token_Type.ASSIGN;
-        public string value { get; set; }
-        public ASTnode left { get; set; }
-        public ASTnode right { get; set; }
-        public AssingnementWithValue(ASTnode left, string value,ASTnode right)
-        {
-            this.left = left;
-            this.right = right;
-            this.value= value;  
-        }
-    }
     public class UnaryASTNode : ASTnode
     {
         public Token_Type Operand { get; set; }
@@ -288,11 +290,7 @@ namespace Skyrim_Interpreter
     public class Params : ASTnode
     {
         public List<ASTnode> param { get; set; }
-        public Params()
-        {
-            param = new List<ASTnode>();
-        }
-
+        public Params() => param = new List<ASTnode>();
         public override object Evaluar(Context context, Targets targets)
         {
             var results = new List<object>();
@@ -308,12 +306,13 @@ namespace Skyrim_Interpreter
 
     public class ConditionalASTNode : ASTnode
     {
-        public Params condicion { get; set; }
-        public ConditionalASTNode()
+        public ASTnode condicion { get; set; }
+        public override object Evaluar(Context context, Targets targets)
         {
-            condicion= new Params();    
+            var condtion = this.condicion.Evaluar(context,targets);
+            if (condtion is bool) { return (bool)condtion; }
+            else { throw new InvalidOperationException("Invalid type for condition evalue"); }
         }
-
     }
 
     public class BlockASTNode : ASTnode
@@ -322,6 +321,24 @@ namespace Skyrim_Interpreter
         public BlockASTNode()
         {
             Block= new Params();    
+        }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            var results = new List<object>();
+            foreach (var item in Block.param)
+            {
+                try
+                {
+                    var result = item.Evaluar(context, targets);
+                    results.Add(result);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error evaluating block parameter {item}: {ex.Message}");
+                    throw;
+                }
+            }
+            return results;
         }
     }
 
@@ -366,6 +383,12 @@ namespace Skyrim_Interpreter
             parametros= new List<ASTnode>();    
             actions= new List<ASTnode>();   
         }
+
+        public override object Evaluar(Context context, Targets targets)
+        {
+            throw new NotImplementedException();
+        }
+
     }
     public class EffectASTNode : ASTnode    
     {
@@ -376,6 +399,13 @@ namespace Skyrim_Interpreter
         public EffectASTNode()
         {
             children = new List<ASTnode>();
+        }
+
+        public override object Evaluar(Context context, Targets targets)
+        {
+           Effect neweffect = new Effect();
+            if (this.Name != null) { neweffect.Name = Name; }
+            else { throw new InvalidOperationException("The name for effect is null"); }
         }
     }
 
@@ -481,11 +511,37 @@ namespace Skyrim_Interpreter
     public class WhileASTNode  : ASTnode
     {
         public ASTnode condition { get; set; }
-        public ASTnode block { get; set;}
-        public WhileASTNode(ASTnode condition,ASTnode block)
+        public BlockASTNode block { get; set;}
+        public WhileASTNode(ASTnode condition,BlockASTNode block)
         {
             this.condition = condition; 
             this.block = block; 
+        }
+
+        public override object Evaluar(Context context,Targets targets) 
+        {
+            bool continueLoop = true;
+            while (continueLoop)
+            {
+                var conditionResult = condition.Evaluar(context, targets);
+                if (conditionResult is bool)
+                {
+                    continueLoop = (bool)conditionResult;
+                }
+                else
+                {
+                    throw new ArgumentException("Condition must evaluate to a boolean value");
+                }
+
+                if (continueLoop)
+                {
+                    foreach (var item in block.Block.param)
+                    {
+                        item.Evaluar(context, targets);
+                    }
+                }
+            }
+            return null;
         }
 
     }
@@ -497,6 +553,87 @@ namespace Skyrim_Interpreter
         {
             this.block = block; 
         }
+        public override object Evaluar(Context context, Targets targets)
+    {
+        var results = new List<object>();
+        var loopVariable = new Dictionary<string, object>();
+
+        // Inicializar la variable de bucle
+        foreach (var param in block.Block.param)
+        {
+            var result = param.Evaluar(context, targets);
+            if (result is IdentifierASTNode identifier)
+            {
+                loopVariable[identifier.value] = result;
+            }
+            else
+            {
+                throw new InvalidOperationException("Inicialización de bucle inválida");
+            }
+        }
+
+        // Ejecutar el cuerpo del bucle
+        while (true)
+        {
+            // Ejecutar el cuerpo del bucle
+            foreach (var item in block.Block.param.Skip(1))
+            {
+                var result = item.Evaluar(context, targets);
+                if (result is IdentifierASTNode identifier)
+                {
+                    loopVariable[identifier.value] = result;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Cuerpo del bucle inválido");
+                }
+            }
+
+            // Verificar si debemos continuar el bucle
+            var condition = block.Block.param.FirstOrDefault(p => p is ConditionalASTNode);
+            if (condition != null)
+            {
+                var conditionResult = ((ConditionalASTNode)condition).Evaluar(context, targets);
+                if (!(conditionResult is bool))
+                {
+                    throw new InvalidOperationException("Condición de bucle inválida");
+                }
+                if (!(bool)conditionResult)
+                {
+                    break; // Salir del bucle
+                }
+            }
+            else
+            {
+                // Si no hay condición, asumimos que el bucle debe continuar
+                continue;
+            }
+
+            // Incrementar la variable de bucle
+            foreach (var param in block.Block.param)
+            {
+                if (param is IdentifierASTNode identifier)
+                {
+                    var currentValue = loopVariable[identifier.value];
+                    if (currentValue is int)
+                    {
+                        loopVariable[identifier.value] = (int)currentValue + 1;
+                    }
+                    else if (currentValue is float)
+                    {
+                        loopVariable[identifier.value] = (float)currentValue + 1;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Tipo de variable de bucle no soportado");
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
     }
 
     public class CardASTNode  : ASTnode
@@ -505,23 +642,74 @@ namespace Skyrim_Interpreter
         public string Type { get; set; }
         public string Faction { get; set;}
         public int Power { get; set;}
-        public List<ASTnode> Range { get; set;}
+        public List<string> Range { get; set;}
         public List<ASTnode> OnActivation { get; set; }
+
+        //******************************************************************************************************
         public CardASTNode()
         {
-                Range = new List<ASTnode>();    
+                Range = new List<string>();    
             OnActivation = new List<ASTnode>(); 
         }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            Cards newcard = new Cards();
+            if (Name != null) 
+            {
+                newcard.Name = Name; 
+            }
+            if (Faction != null) { newcard.Faction = Faction; }
+            if (Type != null) { newcard.Type = Type; }
+            if (Range.Count != 0)
+            {
+                if (Ayudante.CheckRange(this.Range)) { newcard.Range = this.Range.ToArray(); }
+                else { throw new InvalidOperationException("Invalid types for range of card evaluation"); }
+            }
+            else { throw new InvalidOperationException("The range for the card is empty"); }
+            if (Power != null) 
+            {
+                if((newcard.Type == "Clima" || newcard.Type == "Aumento") && this.Power != 0) { throw new InvalidOperationException("Ivalid power for this card "); }
+                 newcard.Power = Power; 
+            }
+            List<Effect> effect = new List<Effect>();   
+            if (OnActivation.Count != 0)
+            {
+                foreach (var item in OnActivation)
+                {
+                    var element = item.Evaluar(context,targets);
+                    if (element is EffectASTNode)
+                    {
+                        effect.Add((Effect)element);
+                    }
+                }
+            }
+            newcard.OnActivation = effect;
+            return newcard;
+        }
+
     }
 
     public class EffectCardNode  : ASTnode
     {
         public string Name { get; set; }    
         public List<ASTnode> Amaunts { get; set; }
+
+        public Selector Selector { get; set; }
         public EffectCardNode()
         {
             Amaunts= new List<ASTnode>();   
         }
+        public override object Evaluar(Context context, Targets targets)
+        {
+           EffectDef neweffect = new EffectDef();
+            if (Name != null) { neweffect.Name = this.Name;}
+            if (this.Amaunts.Count != 0) 
+            {
+
+            }
+            return neweffect;
+        }
+
     }
 
     public class SelectorCardNode : ASTnode
@@ -692,6 +880,16 @@ namespace Skyrim_Interpreter
             }
             return null;
         }
+
+        public static bool CheckRange(List<string> range)
+        {
+            foreach (var node in range)
+            {
+                if (node != "Melee" && node != "Ranged" && node != "Siege") { return false; }
+            }
+            return true;
+        }
+
 
     }
 
