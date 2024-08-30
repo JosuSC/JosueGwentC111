@@ -50,6 +50,7 @@ namespace Skyrim_Interpreter
 
         public override object Evaluar(Context context, Targets targets) 
         {
+            Console.WriteLine("Hola mongosito");
             var left = LeftChild.Evaluar( context, targets);
             var right = RightChild.Evaluar( context,targets);
             return Ayudante.EvaluateBinary(left,this.type,right);
@@ -237,9 +238,10 @@ namespace Skyrim_Interpreter
         {
             var left = this.Left.Evaluar( context,  targets);
             var right = this.Right.Evaluar( context,  targets);
-            if (left is IdentifierASTNode) 
+            if (left is IdentifierASTNode ident) 
             {
-                return left = right;
+               ident.value = right.ToString(); 
+               return right;
             }
             throw new InvalidOperationException("Invalid types for assignement");
         } 
@@ -406,6 +408,10 @@ namespace Skyrim_Interpreter
            Effect neweffect = new Effect();
             if (this.Name != null) { neweffect.Name = Name; }
             else { throw new InvalidOperationException("The name for effect is null"); }
+            var param = this.Params.Evaluar(context, targets); 
+            var action = this.Action.Evaluar(context, targets);
+
+            return null;
         }
     }
 
@@ -631,8 +637,8 @@ namespace Skyrim_Interpreter
             }
         }
 
-        return results;
-    }
+          return results;
+        }
 
     }
 
@@ -671,7 +677,7 @@ namespace Skyrim_Interpreter
                 if((newcard.Type == "Clima" || newcard.Type == "Aumento") && this.Power != 0) { throw new InvalidOperationException("Ivalid power for this card "); }
                  newcard.Power = Power; 
             }
-            List<Effect> effect = new List<Effect>();   
+            List<EffectDef> effect = new List<EffectDef>();   
             if (OnActivation.Count != 0)
             {
                 foreach (var item in OnActivation)
@@ -679,7 +685,7 @@ namespace Skyrim_Interpreter
                     var element = item.Evaluar(context,targets);
                     if (element is EffectASTNode)
                     {
-                        effect.Add((Effect)element);
+                        effect.Add((EffectDef)element);
                     }
                 }
             }
@@ -689,21 +695,21 @@ namespace Skyrim_Interpreter
 
     }
 
-    public class EffectCardNode  : ASTnode
+    public class EffectCardNode : ASTnode
     {
         public string Name { get; set; }    
-        public List<ASTnode> Amaunts { get; set; }
+        public List<ASTnode> Parameters { get; set; }
 
-        public Selector Selector { get; set; }
+        public SelectorCardNode Selector { get; set; }
         public EffectCardNode()
         {
-            Amaunts= new List<ASTnode>();   
+            Parameters = new List<ASTnode>();   
         }
         public override object Evaluar(Context context, Targets targets)
         {
            EffectDef neweffect = new EffectDef();
             if (Name != null) { neweffect.Name = this.Name;}
-            if (this.Amaunts.Count != 0) 
+            if (this.Parameters.Count != 0) 
             {
 
             }
@@ -722,6 +728,26 @@ namespace Skyrim_Interpreter
         {
             Single = false;
         }
+
+        public override object Evaluar(Context context, Targets targets)
+        {
+           Selector newselector = new Selector();
+            if (Source != null && Ayudante.CheckSource(Source)) 
+            {
+                newselector.Source = Source;
+            }
+            else 
+            {
+                throw new InvalidOperationException("The source is empty or is invalid");
+            }
+
+            newselector.Single = Single;
+
+
+            return newselector;
+        }
+
+
     }
 
     public class LambdaForAction  :ASTnode
@@ -733,6 +759,10 @@ namespace Skyrim_Interpreter
         {
             this.left = left;
             this.right = right;
+        }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            throw new NotImplementedException();
         }
     }
     public class LambdaASTNode : ASTnode 
@@ -760,137 +790,6 @@ namespace Skyrim_Interpreter
 
     }
 
-    public static class Ayudante
-    {
-        public static bool IsNumber(params object[] myobjects)
-        {
-            foreach (var obejects in myobjects) 
-            {
-                if(obejects is not double) return false;    
-            }
-            return true;
-        }
 
-        public static bool IsBoolean(params object[] myobjects)
-        {
-            foreach (var objects in myobjects)
-            {
-                if (objects is not Boolean)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool IsString(params object[] myobejects)
-        {
-            foreach (var objects in myobejects)
-            {
-                if (objects is not string) return false;
-            }
-            return true;
-        }
-
-        public static bool IsEqual(object a, object b)
-        {
-            if (a == null && b == null) return true;
-
-            return a == null ? false : a.Equals(b);
-        }
-
-        public static object EvaluateBinary(object left, Token_Type type, object right)
-        {
-            switch (type)
-            {
-                case Token_Type.PLUS:
-                    if (IsNumber(left, right)) return (double)left + (double)right;
-                    throw new InvalidOperationException("Invalid types for plus evaluation");
-                case Token_Type.MINUS:
-                    if (IsNumber(left, right)) return (double)left - (double)right;
-                    throw new InvalidOperationException("Invalid types for minus evaluation");
-                case Token_Type.MULTIPLY:
-                    if (IsNumber(left, right)) return (double)left * (double)right;
-                    throw new InvalidOperationException("Invalid types for multlipy evaluation");
-                case Token_Type.DIVIDE:
-                    if (IsNumber(left, right)) return (double)left / (double)right;
-                    throw new InvalidOperationException("Invalid types for divide evaluation");
-                case Token_Type.MODULUS:
-                    if (IsNumber(left, right)) return (double)left % (double)right;
-                    throw new InvalidOperationException("Invalid types for modulus evaluation");
-                case Token_Type.POWER:
-                    if (IsNumber(left, right))
-                    {
-                        double salida = 1;
-                        for (int i = 0; i < (double)right; i++)
-                        {
-                            salida *= (double)left;
-                        }
-                        return salida;
-                    }
-                    throw new InvalidOperationException("Invalid types for power evaluation");
-
-                case Token_Type.GREATER:
-                    if (IsNumber(left, right)) return (double)left > (double)right;
-                    throw new InvalidOperationException("Invalid types for greater evaluation");
-                case Token_Type.LESS:
-                    if (IsNumber(left, right)) return (double)left < (double)right;
-                    throw new InvalidOperationException("Invalid types for less evaluation");
-                case Token_Type.LESS_EQUAL:
-                    if (IsNumber(left, right)) return (double)left <= (double)right;
-                    throw new InvalidOperationException("Invalid types for less_equal evaluation");
-                case Token_Type.GREATER_EQUAL:
-                    if (IsNumber(left, right)) return (double)left >= (double)right;
-                    throw new InvalidOperationException("Invalid types for greater_equal evaluation");
-
-                case Token_Type.AND:
-                    if (IsBoolean(left, right)) return (bool)left && (bool)right;
-                    throw new InvalidOperationException("Invalid types for And evaluation");
-                case Token_Type.OR:
-                    if (IsBoolean(left, right)) return (bool)left || (bool)right;
-                    throw new InvalidOperationException("Invalid types for Or evaluation");
-
-                case Token_Type.EQUAL:
-                    return IsEqual(left, right);
-                case Token_Type.NOT_EQUAL:
-                    return !IsEqual(left, right);
-
-                case Token_Type.CONCAT:
-                    return left.ToString() + right.ToString();
-
-                default: return null;
-            }
-        }
-
-     
-        public static object EvaluateUnary(string value, object son) 
-        {
-            switch (value) 
-            {
-                case "!":
-                    if (IsBoolean(son)) return !(bool)son;
-                    break;
-                case "++":
-                    if(IsNumber(son)) return (double)son + 1;
-                    break;
-                case "--":
-                    if (IsNumber(son)) return (double)son - 1;
-                    break;
-                default: return null;
-            }
-            return null;
-        }
-
-        public static bool CheckRange(List<string> range)
-        {
-            foreach (var node in range)
-            {
-                if (node != "Melee" && node != "Ranged" && node != "Siege") { return false; }
-            }
-            return true;
-        }
-
-
-    }
 
 }

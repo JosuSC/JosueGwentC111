@@ -43,7 +43,6 @@ namespace Skyrim_Interpreter
             if (IsAtEnd()) return false;
             return Peek().Type == type;
         }
-
         private bool CheckValue(string value) 
         {
             if (IsAtEnd()) return false;
@@ -104,7 +103,8 @@ namespace Skyrim_Interpreter
 
         public void Parse()
         {
-            KeywordNode();
+            CreateNode();
+           // KeywordNode();
         }
 
         private ASTnode KeywordNode()
@@ -129,7 +129,7 @@ namespace Skyrim_Interpreter
                         }
                         else
                         {
-                            throw new Exception();
+                            throw new Exception("Se debe definir una carta o efecto");
                         }
                     }
                     Advance();
@@ -294,38 +294,34 @@ namespace Skyrim_Interpreter
 
         private CardASTNode OnActivationList(CardASTNode card) 
         {
+            EffectCardNode effectCard = new EffectCardNode();
+            //seguimos buscando hasta no encontar ] 
             while (Peek().Value != "]") 
             {
-                Console.WriteLine(Peek());
+                //si llegamos al final rompemos el bucle;
+                if (Peek().Type == Token_Type.EOF) break;
+                //si encontramos una {
                 if (Peek().Value == "{")
                 {
                     Advance();
-                    while (Peek().Value != "}") 
+                    //buscamos hasta no encontar la otra llave
+                    while (Peek().Value != "}")
                     {
                         if (Peek().Value == "Effect")
                         {
-                            Advance();  
-                            card.OnActivation.Add(EffectForCard());
-                        }  
+                            Advance();
+                            effectCard = EffectForCard();
+                            card.OnActivation.Add(effectCard);
+                        }
+                        if (Peek().Value != "}")
+                        {
+                            Advance();
+                        }
                     }
                     Advance();
-                }                                                     // esta bien
-
-                if (CheckValue("Selector"))
-                {
-                    Advance();
-                    comprobar = Consume(Token_Type.COLON,"se esperaba :");
-                    if (comprobar == null) return null;
-                    comprobar = Consume(Token_Type.DELIMITIER,"se esperaba {");
-                    if (comprobar == null) return null;
-                    while (!CheckValue("}")) 
-                    {
-                       card.OnActivation.Add(SelectorForCard());  
-                    }
-                  
+                    if (Peek().Value != "]") { comprobar = Consume(Token_Type.COMMA, "Se esperaba una , "); if (comprobar == null) { return null; } }
                 }
-                Advance();
-                Console.WriteLine(Peek());                                 //hasta aqui esta bien
+                else { Console.WriteLine("Se esperaba un {");   return null; }          // esta bien                             //hasta aqui esta bien
             }
             Advance();  
             return card;
@@ -334,20 +330,21 @@ namespace Skyrim_Interpreter
         private EffectCardNode EffectForCard() 
         {
             EffectCardNode effcard = new EffectCardNode();
+            //comprobamos que hayan : despues de la palabra Effect
             comprobar = Consume(Token_Type.COLON,"se esperaba un :");
             if (comprobar == null) return null;
-            Console.WriteLine(Peek());
+            // si despues de los dos puntos hay un string "..."(Effect : "Damage") lo devolvemos
             if (Peek().Type == Token_Type.STRING)
             {
                 effcard.Name = Peek().Value;
                 Advance();
                 return effcard; 
             }
+            //revisamos si hay un { , y hasta no encontrar } seguimos buscando y guardando propiedades en el effect 
             comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un {");
             if (comprobar == null) return null;
             while (Peek().Value != "}") 
             {
-                Console.WriteLine(Peek());
                 if (Peek().Value == "Name") 
                 { 
                     Advance(); 
@@ -360,14 +357,28 @@ namespace Skyrim_Interpreter
                     Advance();
                     comprobar = Consume(Token_Type.COMMA, "se esperaba ,");
                 }
-                else if (Peek().Value == "Amount") 
-                { 
+                if (Peek().Type == Token_Type.IDENTIFIER) 
+                {
+                    while (Peek().Type != Token_Type.COMMA) { effcard.Parameters.Add(CreateNode()); };
                     Advance();
-                    comprobar = Consume(Token_Type.COLON, "se esparaba :");
-                    while(Peek().Type != Token_Type.COMMA) { effcard.Amaunts.Add(CreateNode()); };
-                    Advance();  
+                }
+
+            }
+            //encontramos el selector
+            if (CheckValue("Selector"))
+            {
+                Advance();
+                // comprobamos los dos puntos
+                comprobar = Consume(Token_Type.COLON, "se esperaba :");
+                if (comprobar == null) return null;
+                comprobar = Consume(Token_Type.DELIMITIER, "se esperaba {");
+                if (comprobar == null) return null;
+                while (!CheckValue("}"))
+                {
+                    effcard.Selector = SelectorForCard();
                 }
             }
+            Advance();
             return effcard;
         }
         private SelectorCardNode SelectorForCard() 
@@ -381,7 +392,9 @@ namespace Skyrim_Interpreter
                 if (Check(Token_Type.STRING))
                 {
                     selector.Source = Peek().Value;
-                    Advance();  
+                    Advance();
+                   comprobar = Consume(Token_Type.COMMA,"Se esperaba una ,");
+                    if (comprobar == null) { return null; }
                 }
             }
             if (CheckValue("Single"))
@@ -398,7 +411,6 @@ namespace Skyrim_Interpreter
                 Advance();
                 comprobar = Consume(Token_Type.COLON,"se esperaba : despuesde Predicate");
                 selector.Predicate = CreateNode();
-                Console.WriteLine(Peek());
             }
             return selector;
         }

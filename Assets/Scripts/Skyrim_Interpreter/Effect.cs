@@ -21,7 +21,11 @@ namespace Skyrim_Interpreter
     {
         public string Source { get; set;}
         public bool Single { get; set; }
-        public Predicate<Cards,bool> predicate { get; set; }
-    }
+        public  Predicate<Cards> predicate { get; set;}
 
+        public bool SelectCard(Cards card) 
+        {
+            return predicate(card);
+        }
+    }
 }

@@ -37,8 +37,8 @@ namespace Skyrim_Interpreter
          {
             Player player = PlayerID(id);
             return player.field;
-         }
-
+         } 
+         
         public Deck Deck
         {
             get { return DeckOfPlayer(TriggerPlayer); }

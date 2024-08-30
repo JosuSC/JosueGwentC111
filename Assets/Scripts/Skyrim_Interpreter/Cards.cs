@@ -22,7 +22,7 @@ namespace Skyrim_Interpreter
         public string Name { get; set; }
         public string Faction { get; set;}
         public string Type { get; set; }    
-        public int Power { get; set; }
+        public int Power { get; set; } 
         public string[] Range { get; set; }
         public List<EffectDef> OnActivation { get; set; }
         public Player player { get; set; }
@@ -48,10 +48,7 @@ namespace Skyrim_Interpreter
         }
     }
 
-    public class Selector 
-    {
-
-    }
+   
 
     public class Player
     {
