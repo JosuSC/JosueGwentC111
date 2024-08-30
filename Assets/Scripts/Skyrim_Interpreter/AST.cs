@@ -356,6 +356,7 @@ namespace Skyrim_Interpreter
         Token_Type Type= Token_Type.ACCESS;
         public ASTnode left { get; set; }
         public ASTnode right { get; set; }
+        public static string Property { get; set;}
         public AccessASTNode(ASTnode left, ASTnode right)
         {
             this.left = left;
@@ -370,6 +371,7 @@ namespace Skyrim_Interpreter
             {
                
             }
+            if (left is AccessASTNode && right is IdentifierASTNode) { }
             throw new NotImplementedException();    
         }
 
@@ -746,8 +748,6 @@ namespace Skyrim_Interpreter
 
             return newselector;
         }
-
-
     }
 
     public class LambdaForAction  :ASTnode
@@ -789,7 +789,5 @@ namespace Skyrim_Interpreter
         }
 
     }
-
-
 
 }

@@ -146,5 +146,33 @@ namespace Skyrim_Interpreter
             }
             return false;
         }
+
+        public static void CheckAccess(IdentifierASTNode i1,IdentifierASTNode i2) 
+        {
+            if (i1.value == "context")
+            {
+                if (i2.value == "Hand") {AccessASTNode.Property = "Hand";}
+                else if (i2.value == "Deck") { AccessASTNode.Property = "Deck"; }
+                else if (i2.value == "Board") { AccessASTNode.Property = "Board"; }
+                else if (i2.value == "Graveyard") { AccessASTNode.Property = "Graveyard"; }
+                else if (i2.value == "Field") { AccessASTNode.Property = "Field"; }
+            }
+        }
+
+        public static void CheckAccess2(IdentifierASTNode i3,string property) 
+        {
+            Context context = new Context();
+            switch (property)
+            {
+                case "Hand":
+                    if (i3.value == "Shuffle") context.Hand.Shuffle();
+                    else if (i3.value == "Pop") context.Hand.Pop();
+                    else if (i3.value == "Remove") context.Hand.Remove();
+                    else if (i3.value == "Push") context.Hand.Push();
+                    break;
+
+            }
+        }
+
     }
 } 
