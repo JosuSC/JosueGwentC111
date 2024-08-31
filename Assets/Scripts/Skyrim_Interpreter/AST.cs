@@ -50,29 +50,25 @@ namespace Skyrim_Interpreter
 
         public override object Evaluar(Context context, Targets targets) 
         {
-            Console.WriteLine("Hola mongosito");
             var left = LeftChild.Evaluar( context, targets);
             var right = RightChild.Evaluar( context,targets);
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
 
     }
-
     // Variables
     public class IdentifierASTNode : ASTnode
     {
         public Token_Type type { get; set; }
         public string value { get; set; }
 
+        public ASTnode Parameters { get; set;}
         public IdentifierASTNode(Token_Type type, string value) 
         {
             this.type = type;   
             this.value = value;
         }
-
         public override object Evaluar(Context context, Targets targets) { return value; }
-        
-
     }
 
     public class MinusASTNode : ASTnode
@@ -95,7 +91,7 @@ namespace Skyrim_Interpreter
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
     }
-
+        
     public class Node : ASTnode
     {
         public Token_Type type { get; set; }
@@ -353,25 +349,34 @@ namespace Skyrim_Interpreter
 
     public class AccessASTNode :ASTnode
     {
-        Token_Type Type= Token_Type.ACCESS;
         public ASTnode left { get; set; }
         public ASTnode right { get; set; }
         public static string Property { get; set;}
+        public string HI { get; set;}  
+        public string HD { get; set; }
+
         public AccessASTNode(ASTnode left, ASTnode right)
         {
             this.left = left;
             this.right = right;
         }
+        //ejemplos a evaluar context.hand.power.
         public override object Evaluar(Context context, Targets targets)
         {
             var left = this.left.Evaluar( context,  targets);
             var right = this.right.Evaluar( context,  targets);
 
-            if (left is IdentifierASTNode identifier1 && right is IdentifierASTNode idetifier2) 
+            if (left is IdentifierASTNode identifier1 && right is IdentifierASTNode identifier2 && identifier1.value == "context") 
             {
-               
+                Ayudante.ReturnList(identifier1,identifier2,context);
             }
-            if (left is AccessASTNode && right is IdentifierASTNode) { }
+            if (left is List<Cards> a && right is IdentifierASTNode ide) 
+            {
+                List<Cards> newlist = a;
+                var parameter = ide.Parameters.Evaluar(context,targets);
+                if (parameter is not IdentifierASTNode i) throw new InvalidOperationException("Invalid Parameter");
+                return Ayudante.ReturnChange(newlist,ide.value,i);
+            }
             throw new NotImplementedException();    
         }
 

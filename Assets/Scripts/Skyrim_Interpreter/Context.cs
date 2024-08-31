@@ -9,12 +9,12 @@ namespace Skyrim_Interpreter
     public class Context
     {
         public Guid TriggerPlayer { get; set; }
-        public List<CardASTNode> Board { get; set; }
-        public Context(Guid id, List<CardASTNode> board)
+        public List<Cards> Board { get; set; }
+        public Context(Guid id, List<Cards> board)
         {
             this.TriggerPlayer = id;
             this.Board = board;
-        }
+        }   
         public Hand HandOfPlayer(Guid id) 
         {
             Player player = PlayerID(id);

@@ -50,7 +50,6 @@ namespace Skyrim_Interpreter
             switch (type)
             {
                 case Token_Type.PLUS:
-                    Console.WriteLine("Hola otra vez");
                     if (IsNumber(left, right)) return (double)left + (double)right;
                     throw new InvalidOperationException("Invalid types for plus evaluation");
                 case Token_Type.MINUS:
@@ -108,8 +107,6 @@ namespace Skyrim_Interpreter
                 default: return null;
             }
         }
-
-
         public static object EvaluateUnary(string value, object son)
         {
             switch (value)
@@ -127,7 +124,6 @@ namespace Skyrim_Interpreter
             }
             return null;
         }
-
         public static bool CheckRange(List<string> range)
         {
             foreach (var node in range) 
@@ -136,7 +132,6 @@ namespace Skyrim_Interpreter
             }
             return true;
         }
-
         public static bool CheckSource(string source) 
         {
             List<string> list =new List<string> {"board", "hand", "otherHand", "deck", "othreDeck","field","otherField","parent" };
@@ -146,33 +141,34 @@ namespace Skyrim_Interpreter
             }
             return false;
         }
-
-        public static void CheckAccess(IdentifierASTNode i1,IdentifierASTNode i2) 
+        public static object ReturnList(IdentifierASTNode i1,IdentifierASTNode i2,Context context) 
         {
-            if (i1.value == "context")
+            if (i1.value == "context") 
             {
-                if (i2.value == "Hand") {AccessASTNode.Property = "Hand";}
-                else if (i2.value == "Deck") { AccessASTNode.Property = "Deck"; }
-                else if (i2.value == "Board") { AccessASTNode.Property = "Board"; }
-                else if (i2.value == "Graveyard") { AccessASTNode.Property = "Graveyard"; }
-                else if (i2.value == "Field") { AccessASTNode.Property = "Field"; }
+                switch (i2.value) 
+                {
+                    case "Hand":
+                        return context.Hand;
+                    case "Deck":
+                        return context.Deck;
+                    case "Field":
+                        return context.Field;
+                    case "Graveyarad":
+                        return context.Graveyard;
+                    case "Board":
+                        return context.Board;
+                    default:
+                       throw new InvalidOperationException("Invalid access in context");   
+                }
             }
+            return null;
         }
 
-        public static void CheckAccess2(IdentifierASTNode i3,string property) 
+        public static object ReturnChange(List<Cards> cards, string method,IdentifierASTNode param)
         {
-            Context context = new Context();
-            switch (property)
-            {
-                case "Hand":
-                    if (i3.value == "Shuffle") context.Hand.Shuffle();
-                    else if (i3.value == "Pop") context.Hand.Pop();
-                    else if (i3.value == "Remove") context.Hand.Remove();
-                    else if (i3.value == "Push") context.Hand.Push();
-                    break;
+            if (method == "Push") return cards.Insert(0,);
 
-            }
+
         }
-
     }
 } 

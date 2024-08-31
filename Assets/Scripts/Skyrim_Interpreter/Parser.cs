@@ -584,8 +584,12 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.ACCESS))
             {
                 Token access = Previous();
-                ASTnode right = LambdaASTnode();
-                node = new AccessASTNode(node,right);
+                ASTnode right = LambdaASTnode(); 
+                AccessASTNode acc = new AccessASTNode(node,right);
+                if (node is LiteralASTNode literal) { acc.HI = literal.value; }
+                else if (node is AccessASTNode) { acc.HI = "access"; }
+                if (right is LiteralASTNode lit){ acc.HD = lit.value; }
+                node = acc;
             }
             return node;
         }
@@ -620,7 +624,17 @@ namespace Skyrim_Interpreter
             {
                 return new LiteralASTNode(Previous().Type, Previous().Value);
             }
-            while (Match(Token_Type.IDENTIFIER)) { return new IdentifierASTNode(Previous().Type, Previous().Value);}
+            while (Match(Token_Type.IDENTIFIER)) 
+            {
+                IdentifierASTNode ident =  new IdentifierASTNode(Previous().Type, Previous().Value);
+                if (Peek().Type == Token_Type.LEFT_PAREN) 
+                {
+                    Advance();
+                    ident.Parameters = CreateNode();
+                    comprobar = Consume(Token_Type.RIGHT_PAREN,"Se esperaba un )");   
+                }
+                return ident;
+            }
             if (Match(Token_Type.LEFT_PAREN))
             {
                 ASTnode insidetheparent = CreateNode();
