@@ -9,6 +9,13 @@ namespace Skyrim_Interpreter
     public class Context
     {
         public Guid TriggerPlayer { get; set; }
+         private static Context _current;
+
+    public static Context Current
+    {
+        get { return _current; }
+        set { _current = value; }
+    }
         public List<Cards> Board { get; set; }
         public Context(Guid id, List<Cards> board)
         {
@@ -62,10 +69,10 @@ namespace Skyrim_Interpreter
     }
     public class Targets 
     {
-        public List<object> targets { get; set; }
+        public List<Cards> targets { get; set; }
         public Targets()
         {
-            targets= new List<object>();    
+            targets= new List<Cards>();    
         }
     }
 }

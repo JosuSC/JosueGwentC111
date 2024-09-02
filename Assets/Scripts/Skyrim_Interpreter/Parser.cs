@@ -103,8 +103,9 @@ namespace Skyrim_Interpreter
 
         public void Parse()
         {
-            CreateNode();
-           // KeywordNode();
+            while(Peek().Type != Token_Type.EOF) CreateNode();
+
+            //KeywordNode();
         }
 
         private ASTnode KeywordNode()
@@ -206,7 +207,7 @@ namespace Skyrim_Interpreter
             return parametros;
         }
 
-        //el actio de effect
+        //el action de effect
         private ActionASTNode ActionNode(ActionASTNode action)
         {
             comprobar = Consume(Token_Type.COLON,"se esperaba un : ");
@@ -288,7 +289,9 @@ namespace Skyrim_Interpreter
                 if (comprobar == null) return null;
                 card = OnActivationList(card);
             }
-
+            Console.WriteLine(Peek());
+            if (!CheckValue("}")){ Console.WriteLine("Falta un } de cerrada"); return null; }
+            Advance();  
             return card;
         }
 
@@ -307,6 +310,7 @@ namespace Skyrim_Interpreter
                     //buscamos hasta no encontar la otra llave
                     while (Peek().Value != "}")
                     {
+                        if (Peek().Type == Token_Type.EOF) break;
                         if (Peek().Value == "Effect")
                         {
                             Advance();
@@ -351,7 +355,8 @@ namespace Skyrim_Interpreter
                     if (!Check(Token_Type.COLON)) 
                     {
                         Console.WriteLine("Se esperaba dos puntos");
-                        return null; };
+                        return null; 
+                    }
                     while (Peek().Type != Token_Type.STRING) { Advance(); }
                     effcard.Name = Peek().Value;
                     Advance();
@@ -359,11 +364,17 @@ namespace Skyrim_Interpreter
                 }
                 if (Peek().Type == Token_Type.IDENTIFIER) 
                 {
+                    Console.WriteLine(Peek());
                     while (Peek().Type != Token_Type.COMMA) { effcard.Parameters.Add(CreateNode()); };
-                    Advance();
+                    Console.WriteLine(Peek());
+                    comprobar = Consume(Token_Type.COMMA,$"Se esperaba un ; y en su lugar tenemos un {Peek().Type}");
+                    Console.WriteLine(Peek());
+                    if (CheckValue("}")) continue; 
+                    else { Console.WriteLine("Se espeabar un {"); }
                 }
 
             }
+            Advance();
             //encontramos el selector
             if (CheckValue("Selector"))
             {
@@ -378,7 +389,6 @@ namespace Skyrim_Interpreter
                     effcard.Selector = SelectorForCard();
                 }
             }
-            Advance();
             return effcard;
         }
         private SelectorCardNode SelectorForCard() 
@@ -393,6 +403,7 @@ namespace Skyrim_Interpreter
                 {
                     selector.Source = Peek().Value;
                     Advance();
+                    Console.WriteLine(Peek()    );
                    comprobar = Consume(Token_Type.COMMA,"Se esperaba una ,");
                     if (comprobar == null) { return null; }
                 }
@@ -410,6 +421,7 @@ namespace Skyrim_Interpreter
             {
                 Advance();
                 comprobar = Consume(Token_Type.COLON,"se esperaba : despuesde Predicate");
+                Console.WriteLine(Peek());
                 selector.Predicate = CreateNode();
             }
             return selector;
@@ -476,7 +488,7 @@ namespace Skyrim_Interpreter
             {
                 Token equality = Previous();
                 ASTnode right = ComparasionASTNode();
-                if (equality.Value == " == ") { node = new EqualASTNode(node, right); }
+                if (equality.Value == "==") { node = new EqualASTNode(node, right); }
                 else { node = new NotEqualASTNode(node, right); }
             }
             return node;
@@ -542,16 +554,28 @@ namespace Skyrim_Interpreter
         //^
         private ASTnode PowerNode() 
         {
-            ASTnode node = AssignationNode();
+            ASTnode node = AssingWithValue();
             while (Match(Token_Type.POWER)) 
             {
                 Token power = Previous();
-                ASTnode right = AssignationNode();
+                ASTnode right = AssingWithValue();
                 node = new PowerASTNode(node,right);
             }
             return node;
         }
-
+        // -= ,+=,*=,/=,%=
+        private ASTnode AssingWithValue()
+        {
+            ASTnode node = AssignationNode();
+            while (CheckValue("-=") || CheckValue("+=") || CheckValue("*=") || CheckValue("/=") || CheckValue("%=")) 
+            {
+                string asigwithvalue = Peek().Value;
+                Advance();
+                ASTnode rigth= AssignationNode();
+                node = new AssgnWithValueASTNode(node,asigwithvalue,rigth);
+            }
+            return node;
+        }
         //=
         private ASTnode AssignationNode() 
         {
@@ -570,13 +594,20 @@ namespace Skyrim_Interpreter
             ASTnode node = AccessNode();
             while (Match(Token_Type.COLON)) 
             {
-                Console.WriteLine(Peek());
+              
                 Token col = Previous();
                 ASTnode right = AccessNode();
+                if (node is IdentifierASTNode ident) 
+                {
+                    if (AssignmentManager.Search(AssignmentManager.Parameters, ident.value)) 
+                    {
+                        
+                    }
+                }
                 node = new ColonASTNode(node,right);
             }
             return node;
-        }
+        }  
         //.
         private ASTnode AccessNode() 
         {
@@ -600,7 +631,7 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.LAMBDA)) 
             {
                 Token lamb = Previous();
-                ASTnode right = UnaryNode();
+                ASTnode right = CreateNode();
                 node = new LambdaASTNode(node,right);
             } 
             return node;    
@@ -609,13 +640,19 @@ namespace Skyrim_Interpreter
         //! , ++, --
         private ASTnode UnaryNode() 
         {
-            while (Match(Token_Type.NOT,Token_Type.UNARY)) 
+            while (Match(Token_Type.NOT)) 
             {
-                Token unary= Previous();
-                ASTnode node = UnaryNode();
-                return new UnaryASTNode(unary.Type,unary.Value,node);
+                Token not= Previous();
+                ASTnode node = CreateNode();
+                return new UnaryASTNode(not.Value,node);
             }
-            return LiteralNode();
+            ASTnode nod = LiteralNode();
+            while (Match(Token_Type.UNARY)) 
+            {
+               Token unary = Previous();    
+               nod = new UnaryASTNode(unary.Value,nod);
+            }
+            return nod;
         }
         //string ,number,boolean
         private ASTnode LiteralNode() 

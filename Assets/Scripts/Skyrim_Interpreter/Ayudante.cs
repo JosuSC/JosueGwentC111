@@ -1,8 +1,11 @@
-﻿using System;
+﻿using System.Runtime.InteropServices.ComTypes;
+using System.IO.Enumeration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.AccessControl;
 
 namespace Skyrim_Interpreter
 {
@@ -124,6 +127,16 @@ namespace Skyrim_Interpreter
             }
             return null;
         }
+
+        public static object PerformOperation(object left,object right,Func<double,double,double> operation)
+        {
+           if(left is IdentifierASTNode identLeft)
+           {
+
+           }
+            throw new InvalidOperationException();
+        }
+
         public static bool CheckRange(List<string> range)
         {
             foreach (var node in range) 
@@ -164,11 +177,65 @@ namespace Skyrim_Interpreter
             return null;
         }
 
-        public static object ReturnChange(List<Cards> cards, string method,IdentifierASTNode param)
+        public static object ReturnChangeAux(List<Cards> cards, string method,ASTnode param,Context context,Targets target)
         {
-            if (method == "Push") return cards.Insert(0,);
+            var evaluation = param.Evaluar(context,target);
+            if (evaluation is CardASTNode card) 
+            {
+                if (method != "Push" && method != "SendBottom" && method != "Remove" && method != "Add") { throw new InvalidOperationException("Invaliod method for card"); }
+                Cards thecard = FindCard(target,card);
+                if (thecard == null) { throw new Exception("No se encontro la carta buscanda"); }
+                return ApplyToCard(cards,method,thecard);
+            }
+            else if (evaluation is Predicate<Cards> predicate) 
+            {
+                return ApplyToPredicate( cards,predicate);
+            }
+            return null;
+        }
 
+        public static Cards FindCard(Targets targets,CardASTNode card)
+        {
+            foreach (var target in targets.targets) 
+            {
+                if (target.Name == card.Name && target.Faction == card.Faction && target.Power == card.Power) return target;
+            }
+            return null; 
+        }
+        private static List<Cards> ApplyToPredicate(List<Cards> cards,Predicate<Cards> predicate) 
+        {
+            return cards.Where(card => predicate(card)).ToList();
+        }
 
+         private static object ApplyToCard(List<Cards> cards,string method,Cards actualcard)
+         {
+            switch (method) 
+            {
+                case "Push":
+                     cards.Insert(0,actualcard);
+                    return true;
+                case "SendBottom":
+                    cards.Insert(cards.Count-1,actualcard);
+                    return true;
+                case "Remove":
+                    RemoveCard(cards,actualcard);
+                    return true;
+                case "Add":
+                    cards.Add(actualcard);
+                    return true;
+                    default: return false;  
+            }
+         }
+
+        private static void RemoveCard(List<Cards> cards,Cards card) 
+        {
+            foreach (Cards actualcard in cards) 
+            {
+                if (actualcard.Equals(card)) 
+                {
+                    cards.Remove(actualcard);
+                }
+            }
         }
     }
 } 

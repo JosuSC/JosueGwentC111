@@ -243,15 +243,30 @@ namespace Skyrim_Interpreter
         } 
     }
 
+    public class AssgnWithValueASTNode : ASTnode
+    {
+        string value { get; set; }  
+        ASTnode left { get; set; }
+        public ASTnode right { get; set; }
+        public AssgnWithValueASTNode( ASTnode left, string value, ASTnode right)
+        {
+            this.value = value;
+            this.left = left;
+            this.right = right;
+        }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class UnaryASTNode : ASTnode
     {
-        public Token_Type Operand { get; set; }
         public string value { get; set; }
         public ASTnode Son { get; set; }
 
-        public UnaryASTNode(Token_Type type,string value, ASTnode son)
+        public UnaryASTNode(string value, ASTnode son)
         {
-            Operand = type;
             this.value = value; 
             Son = son;
         }
@@ -351,7 +366,7 @@ namespace Skyrim_Interpreter
     {
         public ASTnode left { get; set; }
         public ASTnode right { get; set; }
-        public static string Property { get; set;}
+       
         public string HI { get; set;}  
         public string HD { get; set; }
 
@@ -372,10 +387,8 @@ namespace Skyrim_Interpreter
             }
             if (left is List<Cards> a && right is IdentifierASTNode ide) 
             {
-                List<Cards> newlist = a;
-                var parameter = ide.Parameters.Evaluar(context,targets);
-                if (parameter is not IdentifierASTNode i) throw new InvalidOperationException("Invalid Parameter");
-                return Ayudante.ReturnChange(newlist,ide.value,i);
+                List<Cards> newlist = a; 
+                return Ayudante.ReturnChangeAux(newlist,ide.value,ide.Parameters,context,targets);
             }
             throw new NotImplementedException();    
         }
@@ -724,7 +737,6 @@ namespace Skyrim_Interpreter
         }
 
     }
-
     public class SelectorCardNode : ASTnode
     {
         public string Source { get; set;}
@@ -747,10 +759,9 @@ namespace Skyrim_Interpreter
             {
                 throw new InvalidOperationException("The source is empty or is invalid");
             }
-
             newselector.Single = Single;
-
-
+            var predicate = this.Predicate.Evaluar(context,targets);
+            
             return newselector;
         }
     }
@@ -783,14 +794,22 @@ namespace Skyrim_Interpreter
 
         public override object Evaluar(Context context, Targets targets)
         {
-           var left = this.Left.Evaluar( context, targets);  
-           var right = this.Right.Evaluar( context,  targets);
+            var left = Left.Evaluar(context, targets);
+            var right = Right.Evaluar(context, targets);
 
-            if (left is bool && right is Func<bool>)
+            // Asumimos que el lado izquierdo es una condición booleana
+            // y el lado derecho es una función que devuelve un Predicate<Cards>
+            if (left is bool condition && right is Func<Predicate<Cards>> func)
             {
-                return new Func<bool>(() => (bool)left && ((Func<bool>)right)());
+                return new Func<Cards, bool>((card) =>
+                {
+                    return condition && func()(card);
+                });
             }
-            else throw new InvalidOperationException("Invalid types for lambda evaluation");
+            else
+            {
+                throw new InvalidOperationException("Invalid types for lambda evaluation");
+            }
         }
 
     }
