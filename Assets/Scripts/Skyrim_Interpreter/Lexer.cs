@@ -206,30 +206,27 @@ public class Program
 
         //string tutu = "10*10/10+10+10*10";
         string whileproof = "while(5 < 10){ 10 + 20 }";
-        string effectproof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n               while (i < amount){ target.Power -= 1; i++;}       \r\n        \r\n        };\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
-        string cardproof = "card\r\n{\r\nName: \"Oro\",\r\n  Type: \"Beluga\",\r\n  Faction: \"Northern Realms\",\r\n  Power: 10,\r\n  Range: [\"Melee\", \"Ranged\"],\r\n  OnActivation:\r\n    [\r\n    {\r\n    Effect:\r\n        {\r\n        Name: \"Damage\",\r\n                Amount: 5,\r\n        }\r\n    Selector: \r\n        {\r\n            Source:\"board\"\r\n,                Single: false,\r\n                Predicate:(unit) => unit.Faction == \"Northern\"@@\"Realms\"\r\n        }\r\n ,       {\r\n            Effect:\"Draw\"\r\n        }\r\n\r\n        \r\n        \r\n        ]\r\n  \r\n\r\n} ";
+        string effectproof = "effect\r\n{\r\n    Name: \"Damage\",\r\n\r\n        Params: {amaunt: Number }\r\n\r\n    Action : (targets,context) =>\r\n    {\r\n               while (i < amount){ target.Power -= 1; i++;}       \r\n        \r\n        }\r\n\r\n    }\r\n\r\n\r\n}\r\n ";
+        string cardproof = "card\r\n{\r\nType: \"Oro\",\r\n  Name: \"Beluga\",\r\n  Faction: \"Northern Realms\",\r\n  Power: 10,\r\n  Range: [\"Melee\", \"Ranged\"],\r\n  OnActivation:\r\n    [\r\n    {\r\n    Effect:\r\n        {\r\n        Name: \"Damage\",\r\n                Amount: 5,\r\n        }\r\n    Selector: \r\n        {\r\n            Source:\"board\"\r\n,                Single: false,\r\n                Predicate:(unit) => unit.Faction == \"Northern\"@@\"Realms\"\r\n        }\r\n ,       {\r\n            Effect:\"Draw\"\r\n        }\r\n\r\n        \r\n        \r\n        ]\r\n  \r\n\r\n} ";
         string proof = "while(i < avd){algo.otro i++}";
-        string unaryproof = "i++ < !tu";
+        string unaryproof = " ";
         string general = "effect\r\n{\r\nName: \"Damage\",\r\n    Params:\r\n    {\r\n    amount: Number\r\n    }\r\n      Action: (targets, context) => \r\n      {\r\n        for target in targets\r\n        {\r\n             i = 0;\r\n            while (i++ < amount)\r\n            {\r\n                target.Power -= 1;\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\neffect\r\n{\r\nName: \"Draw\",\r\n    Action: (targets, context) => {\r\n         topCard = context.Deck.pop();\r\n        context.Hand.add(topCard);\r\n        context.Hand.shuffle();\r\n    }\r\n}\r\n\r\n\r\neffect\r\n{\r\nName: \"ReturnToDeck\",\r\n    Action: (targets, context) => {\r\n        for target in targets\r\n        {\r\n             owner = target.Owner;\r\n             deck = context.DeckOfPlayer(owner);\r\n            deck.push(target);\r\n            deck.shuffle();\r\n            context.Board.remove(target);\r\n        }\r\n    }\r\n}\r\n\r\ncard\r\n{\r\n    Type: \"Oro\",\r\n    Name: \"Beluga\",\r\n    Faction: \"Northern Realms\",\r\n    Power: 10,\r\n    Range: [\"Melee\", \"Ranged\"],\r\n    OnActivation:\r\n    [\r\n        {\r\n    Effect: {\r\n        Name: \"Damage\", \r\n            Amount: 5, \r\n                }\r\n            Selector:\r\n            {\r\n            Source: \"board\", \r\n                Single: false, \r\n                Predicate: (unit) => unit.Faction == \"Northern\" @@ \"Realms\"\r\n            }\r\n            }\r\n      {\r\n        Effect: \"Draw\"\r\n      }\r\n    ]\r\n}\r\n";
 
-        Lexer mylexer = new Lexer(unaryproof);
+        Lexer mylexer = new Lexer(cardproof);
 
         List<Token> mytokens = new List<Token>();   
         mytokens = mylexer.Tokenizer();
 
-        for (int i = 0; i < mytokens.Count; i++)
-        {
-            Console.WriteLine(mytokens[i]);
-            Console.WriteLine();
-        }
+        //for (int i = 0; i < mytokens.Count; i++)
+        //{
+        //    Console.WriteLine(mytokens[i]);
+        //    Console.WriteLine();
+        //}
         Parser par = new Parser(mytokens);
 
         par.Parse();
 
         // par.ART();
-
-
-
         //Parser.MandarPython(par.Word());
 
     }

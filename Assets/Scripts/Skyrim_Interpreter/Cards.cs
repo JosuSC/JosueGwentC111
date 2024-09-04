@@ -48,8 +48,6 @@ namespace Skyrim_Interpreter
         }
     }
 
-   
-
     public class Player
     {
         public Guid ID { get; set; }
@@ -152,7 +150,6 @@ namespace Skyrim_Interpreter
         {
             cards = new List<Cards>();
         }
-
         public List<Cards> Find(Predicate<Cards> predicate)
         {
             List<Cards> list = new List<Cards>();

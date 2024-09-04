@@ -49,6 +49,11 @@ namespace Skyrim_Interpreter
             return Peek().Value == value;   
         }
 
+        public void Avisar(string esperado,string actual) 
+        {
+            Console.WriteLine($"Se esperaba un{esperado} y en su lugar tenemos {actual}");
+        }
+
         //Verifica si ya se llego al final de la lista de tokens
         private bool IsAtEnd() 
         {
@@ -103,11 +108,10 @@ namespace Skyrim_Interpreter
 
         public void Parse()
         {
-            while(Peek().Type != Token_Type.EOF) CreateNode();
+           // while(Peek().Type != Token_Type.EOF) CreateNode();
 
-            //KeywordNode();
+            KeywordNode();
         }
-
         private ASTnode KeywordNode()
         {
            // string keywords = @"\b(Effect|card|for|while|if|else|return|Params|Action|effect)\b";
@@ -137,126 +141,119 @@ namespace Skyrim_Interpreter
                 }
             return MyTree;
         }
-
         #region Effect
-
         //creamos el nodo effect
         private EffectASTNode EffectNode()
         {
             EffectASTNode effect = new EffectASTNode();
+            string name = null; 
             Advance();
-            if (!Check(Token_Type.DELIMITIER)) return null;
+            if (!Check(Token_Type.DELIMITIER)) { Console.WriteLine($"Se esperaba un delimitador y tenemos un {Peek().Value}"); return null; }
             Advance();
             //nombre de efecto
-            if (Check(Token_Type.IDENTIFIER))
+            if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Name")
             {
                 Advance();
-                while (Peek().Type != Token_Type.STRING)
-                {
-                    Advance();  
-                }
-                effect.Name = Peek().Value;                           
-               Advance();
-             comprobar =  Consume(Token_Type.COMMA,"se esperaba una comma despues del name");
-                if (comprobar == null) { Console.WriteLine("null  en 144"); return null;}
+                comprobar = Consume(Token_Type.COLON,$"Se esperaba un : y tenemos un{Peek().Value}");
+                if (comprobar == null) { Console.WriteLine($"Se esperaba : despues del name y tenemos {Peek().Value}"); }
+                comprobar = Consume(Token_Type.STRING, $"Se esperaba el nombre del effecto  tenemos {Peek().Value}");
+                if (comprobar == null) { Console.WriteLine($"No esta bien el nombre de la carta ya que tenemos un {Peek().Value}"); return null; }
+                effect.Name = Previous().Value;  name = Previous().Value;                         
+             comprobar =  Consume(Token_Type.COMMA,$"se esperaba una comma despues del name y tenemos un {Peek().Value}");
+                if (comprobar == null) { Console.WriteLine("null  en 144 ya que se esperaba una comma despues del name del effecto y tenemos un {Peek().Value}"); return null;}
             }
-            else { return null; }   
+            else { Console.WriteLine($"Se esperaba obtener el nombre del efecto y tenemos {Peek().Value}"); return null; }   
             if (Peek().Value == "Params") 
             {
                 Advance();
                Params parametros = new Params();
                parametros = ParamsNode(parametros);
-                if (parametros == null) { Console.WriteLine("null en 152"); return null; } 
-                effect.children.Add(parametros);
+                if (parametros == null) { Console.WriteLine("null en 152 , los parametros estuvieron nulos"); return null; }
                 effect.Params= parametros;  
             }
-            Console.WriteLine(Peek());                 
 
-            if (Peek().Value == "Action")
+            if (CheckValue("Action"))
             {
                 Advance();
-                ActionASTNode action = new ActionASTNode(); 
-                action  =   ActionNode( action);
-                effect.children.Add(action);
-                effect.Action= action;  
-                Advance(); 
-            }                                                  //hasta aqui bien
-            Console.WriteLine(Peek());
-            comprobar = Consume(Token_Type.SEMICOLON,"Se esperaba un ;");
-            if (comprobar == null) { Console.WriteLine("null en 168"); return null; }
-            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un delitador");
+                ActionASTNode action = new ActionASTNode();
+                action = ActionNode(action);
+                effect.Action = action;
+                Advance();
+            }
+            else { Console.WriteLine($"Estes effecto no tiene accion en su lugar tiene{Peek().Value}"); return null; }
+            comprobar = Consume(Token_Type.DELIMITIER,$"se esperaba un delitador y tenemos un {Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 173"); return null; }
+            //meter este effect en el dictionario
+            Effect neweffect = new Effect();
+            neweffect.Name = name;
+            
+            GameContext.EffectAssignmet.Add(name, neweffect);
             return effect;  
         }
-
         //los parametros de effect,en el caso que tenga
         private Params ParamsNode(Params parametros)
         {
-            Console.WriteLine(Peek());
-           comprobar = Consume(Token_Type.COLON,"Se esperaban dos puntos");
+           comprobar = Consume(Token_Type.COLON,$"Se esperaban dos puntos y tenemos {Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 176"); return null; }
-            comprobar = Consume(Token_Type.DELIMITIER,"Se Esperaba un {");
+            comprobar = Consume(Token_Type.DELIMITIER,$"Se Esperaba un delimitador y tenemos{Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 178"); return null; }
             while (Peek().Value != "}") 
             {
                 Console.WriteLine(Peek());
                 parametros.param.Add(CreateNode());
-                Console.WriteLine(Peek());
+                if(Check(Token_Type.COMMA)) Advance();
             }
             Advance();
             return parametros;
         }
-
         //el action de effect
         private ActionASTNode ActionNode(ActionASTNode action)
         {
-            comprobar = Consume(Token_Type.COLON,"se esperaba un : ");
+            comprobar = Consume(Token_Type.COLON,$"se esperaba un : y tenemos un {Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 192"); return null; }
             if (Check(Token_Type.LEFT_PAREN))
             {
                 Advance();
-                while (Peek().Type != Token_Type.RIGHT_PAREN)
-                {
-                    Console.WriteLine(Peek());
-                    action.parametros.Add(CreateNode());
-                    Console.WriteLine(Peek());
-                }
-               
+                if (Check(Token_Type.IDENTIFIER)) action.Target = Peek().Value;
+                if (!GameContext.IsContainsAssignment(action.Target)) { Console.WriteLine("Esa lista de cartas no existe"); /*return null; */}
+                Advance();
+                comprobar = Consume(Token_Type.COMMA, $"Se esperaba una , y tenemos un {Peek().Value}");
+                if (comprobar == null) { Console.WriteLine($"se esperaba una comma entre los targets y el context en el action del effect actual"); return null; }
+                if (Check(Token_Type.IDENTIFIER)) action.context = Peek().Value;
+                Advance();
+                if (!CheckValue(")")) { Console.WriteLine($"Se esperaba un ) y tenemos {Peek().Value}"); }
             }
-            else { Console.WriteLine("null en 203"); return null; }
+            else { Console.WriteLine($"null en 203 ya que se esperaba un ( y tenemos un {Peek().Value}"); return null; }
             Advance();
-           comprobar = Consume(Token_Type.LAMBDA,"Se esperaba un =>");
-            action.Lambda = new LambdaForAction(action.parametros,action.actions);
+           comprobar = Consume(Token_Type.LAMBDA,$"Se esperaba un => y en su lugar tenemos a un {Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 206"); return null; }
-            if (Check(Token_Type.DELIMITIER))
-            {
-                Advance();  
-                while (Peek().Value != "}")         //hasta aqui estas bien
+                if (CheckValue("{"))
                 {
-                    Console.WriteLine(Peek());  
-                    action.actions.Add(CreateNode());
-                    Console.WriteLine(Peek());
+                    Advance();
+                    while (Peek().Value != "}")         //hasta aqui estas bien
+                    {
+                        action.actions.Add(CreateNode());
+                        if (Check(Token_Type.SEMICOLON)) Advance();
+                    }
+                  Advance();
                 }
-            }
-            else { return null; }
+                else { Console.WriteLine($"Se esperaba un delimitador despues del lambda y tenemos en su lugar {Peek().Value}"); return null; }
             return action;
         }
-
         #endregion
-
         #region Card
         private ASTnode CardNode() 
         {
             CardASTNode card = new CardASTNode();
             Advance();
-            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un { despues de card");
+            comprobar = Consume(Token_Type.DELIMITIER,$"se esperaba un delimitador despues de card y tenemos en su lugar{Peek().Value}");
             if (comprobar == null) { Console.WriteLine("null en 253"); return null;}
-            card = Meter("Name", card);
-            if (card == null) { Console.WriteLine( "null en 255"); return null; };
             card = Meter("Type", card);
-            if (card == null) { Console.WriteLine("null en 257"); return null; };
+            if (card == null) { Console.WriteLine("null en 257 ya que la carta no tiene Type"); return null; };
+            card = Meter("Name", card);
+            if (card == null) { Console.WriteLine("null en 255 ya que la  carta no tiene nombre"); return null; };
             card = Meter("Faction", card);
-            if (card == null) { Console.WriteLine("null en 259"); return null; };
+            if (card == null) { Console.WriteLine("null en 259 ya que la cata no tiene Faction"); return null; };
                                                                                         //hasta aqui esta perfecto
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Power")
             {
@@ -264,33 +261,31 @@ namespace Skyrim_Interpreter
                 while (Peek().Type != Token_Type.NUMBER) { Advance(); }
                 card.Power = Convert.ToInt32(Peek().Value);
                 Advance();
-                comprobar = Consume(Token_Type.COMMA, "se esperaba una ,");
+                comprobar = Consume(Token_Type.COMMA, $"se esperaba una , y en su lugar tenemos {Peek().Value}");
                 if (comprobar == null) { return null; }
             }
-            else { Console.WriteLine("null en 270"); return null; }
-                                                                                          //bien
+            else { Console.WriteLine("null en 270 ya que la carta no tiene Power"); return null; }
+            //bien
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "Range")
             {
                 Advance();
                 card = MeterenRange(card);
                 if (card == null) return null;
-                comprobar = Consume(Token_Type.COMMA, "se esperaba una comma");
+                comprobar = Consume(Token_Type.COMMA, $"se esperaba una comma y tenemos un {Peek().Value}");
                 if (comprobar == null) return null;
             }
-            else return null;
-
-            Console.WriteLine(Peek());
+            else { Console.WriteLine("La carta no tiene Range"); return null;}
+            //espermos el OnActivation
             if (Check(Token_Type.IDENTIFIER) && Peek().Value == "OnActivation")
             {
                 Advance();
-                Console.WriteLine(Peek());
-                comprobar = Consume(Token_Type.COLON,"se esperaba : despues de OnActivation");
-                comprobar = Consume(Token_Type.DELIMITIER,"Se esperaba un [");
+                comprobar = Consume(Token_Type.COLON, $"se esperaba : despues de OnActivation y tenemos un {Peek().Value}");
+                comprobar = Consume(Token_Type.DELIMITIER, $"Se esperaba un [ y tenemos un {Peek().Value}");
                 if (comprobar == null) return null;
                 card = OnActivationList(card);
             }
-            Console.WriteLine(Peek());
-            if (!CheckValue("}")){ Console.WriteLine("Falta un } de cerrada"); return null; }
+            else { Console.WriteLine("La carta es tiene OnActivation"); }
+            if (!CheckValue("}")){ Console.WriteLine($"Falta un delimitador de cerrada y tenemos es su lugar tenemos {Peek().Value}"); return null; }
             Advance();  
             return card;
         }
@@ -302,7 +297,7 @@ namespace Skyrim_Interpreter
             while (Peek().Value != "]") 
             {
                 //si llegamos al final rompemos el bucle;
-                if (Peek().Type == Token_Type.EOF) break;
+                if (Peek().Type == Token_Type.EOF) { Console.WriteLine("Se llego al final y no se logro completar el OnActivation"); break; }
                 //si encontramos una {
                 if (Peek().Value == "{")
                 {
@@ -310,7 +305,7 @@ namespace Skyrim_Interpreter
                     //buscamos hasta no encontar la otra llave
                     while (Peek().Value != "}")
                     {
-                        if (Peek().Type == Token_Type.EOF) break;
+                        if (Peek().Type == Token_Type.EOF) { Console.WriteLine("Se llego al final y no se logro completar el effect"); break; }
                         if (Peek().Value == "Effect")
                         {
                             Advance();
@@ -325,54 +320,55 @@ namespace Skyrim_Interpreter
                     Advance();
                     if (Peek().Value != "]") { comprobar = Consume(Token_Type.COMMA, "Se esperaba una , "); if (comprobar == null) { return null; } }
                 }
-                else { Console.WriteLine("Se esperaba un {");   return null; }          // esta bien                             //hasta aqui esta bien
+                else { Console.WriteLine("Se esperaba un {");   return null; }  // esta bien                             //hasta aqui esta bien
             }
             Advance();  
             return card;
         }
-
         private EffectCardNode EffectForCard() 
         {
             EffectCardNode effcard = new EffectCardNode();
             //comprobamos que hayan : despues de la palabra Effect
-            comprobar = Consume(Token_Type.COLON,"se esperaba un :");
+            comprobar = Consume(Token_Type.COLON,$"se esperaba un : y tenemos un {Peek().Value}");
             if (comprobar == null) return null;
             // si despues de los dos puntos hay un string "..."(Effect : "Damage") lo devolvemos
             if (Peek().Type == Token_Type.STRING)
             {
                 effcard.Name = Peek().Value;
+                if (!GameContext.IsContainsEffcet(effcard.Name)) { Console.WriteLine("Ese effecto no existe en nuestro contexto"); }
                 Advance();
                 return effcard; 
             }
             //revisamos si hay un { , y hasta no encontrar } seguimos buscando y guardando propiedades en el effect 
-            comprobar = Consume(Token_Type.DELIMITIER,"se esperaba un {");
+            comprobar = Consume(Token_Type.DELIMITIER,$"se esperaba un delimiter y tenemos un {Peek().Value}");
             if (comprobar == null) return null;
             while (Peek().Value != "}") 
             {
-                if (Peek().Value == "Name") 
-                { 
-                    Advance(); 
-                    if (!Check(Token_Type.COLON)) 
-                    {
-                        Console.WriteLine("Se esperaba dos puntos");
-                        return null; 
-                    }
-                    while (Peek().Type != Token_Type.STRING) { Advance(); }
-                    effcard.Name = Peek().Value;
-                    Advance();
-                    comprobar = Consume(Token_Type.COMMA, "se esperaba ,");
-                }
-                if (Peek().Type == Token_Type.IDENTIFIER) 
+                if (Peek().Value == "Name")
                 {
-                    Console.WriteLine(Peek());
-                    while (Peek().Type != Token_Type.COMMA) { effcard.Parameters.Add(CreateNode()); };
-                    Console.WriteLine(Peek());
-                    comprobar = Consume(Token_Type.COMMA,$"Se esperaba un ; y en su lugar tenemos un {Peek().Type}");
-                    Console.WriteLine(Peek());
-                    if (CheckValue("}")) continue; 
-                    else { Console.WriteLine("Se espeabar un {"); }
+                    Advance();
+                    if (!Check(Token_Type.COLON))
+                    {
+                        Console.WriteLine($"Se esperaba dos puntos y tenemos un {Peek().Value}");
+                        return null;
+                    }
+                    Advance();
+                    if (!Check(Token_Type.STRING)) { Console.WriteLine($"Se esperaba tener el nombre de la carta y en su lugaer tenemos {Peek().Value}"); }
+                    effcard.Name = Peek().Value;
+                    if (!GameContext.IsContainsEffcet(effcard.Name)) { Console.WriteLine("No existe ese efecto en nuestro contexto"); }
+                    Advance();
+                    comprobar = Consume(Token_Type.COMMA, $"se esperaba , y tenemos un {Peek().Value}");
                 }
-
+                else { Console.WriteLine($"No tenemos nombre para definir el effecto que tiene la carta y tenemos {Peek().Value}"); }
+                if (Peek().Type == Token_Type.IDENTIFIER)
+                {
+                    while (!CheckValue("}"))
+                    {
+                        if (Check(Token_Type.EOF)) { Console.WriteLine("Llegamos al final y no termiamos de poner los parametros"); return null; }
+                        effcard.Parameters.Add(CreateNode()); 
+                        comprobar = Consume(Token_Type.COMMA, $"Se esperaba un , y en su lugar tenemos un {Peek().Type}");
+                    }
+                }
             }
             Advance();
             //encontramos el selector
@@ -380,15 +376,16 @@ namespace Skyrim_Interpreter
             {
                 Advance();
                 // comprobamos los dos puntos
-                comprobar = Consume(Token_Type.COLON, "se esperaba :");
+                comprobar = Consume(Token_Type.COLON, $"se esperaba : y tenemos un {Peek().Value}");
                 if (comprobar == null) return null;
-                comprobar = Consume(Token_Type.DELIMITIER, "se esperaba {");
+                comprobar = Consume(Token_Type.DELIMITIER, $"se esperaba delimitadior y tenemos un {Peek().Value}");
                 if (comprobar == null) return null;
                 while (!CheckValue("}"))
                 {
                     effcard.Selector = SelectorForCard();
                 }
             }
+            //metemos en el efecto de su nombre el selector para obtener la funte y su predicado
             return effcard;
         }
         private SelectorCardNode SelectorForCard() 
@@ -397,16 +394,17 @@ namespace Skyrim_Interpreter
             if (CheckValue("Source"))
             {
                Advance();   
-                comprobar = Consume(Token_Type.COLON, "se esperaba :");
+                comprobar = Consume(Token_Type.COLON, $"se esperaba : y tenemos {Peek().Value}");
                 if (comprobar == null) return null;
                 if (Check(Token_Type.STRING))
                 {
                     selector.Source = Peek().Value;
+                    if (!GameContext.IsContainsAssignment(selector.Source)) { Console.WriteLine("No existe ese campo en nuestro contexto"); }
                     Advance();
-                    Console.WriteLine(Peek()    );
-                   comprobar = Consume(Token_Type.COMMA,"Se esperaba una ,");
+                    comprobar = Consume(Token_Type.COMMA, $"Se esperaba una , y tenemos un {Peek().Value}");
                     if (comprobar == null) { return null; }
                 }
+                else { Console.WriteLine("Se esperaba la especificacion del source"); return null; }
             }
             if (CheckValue("Single"))
             {
@@ -415,8 +413,8 @@ namespace Skyrim_Interpreter
                 if (comprobar == null) return null;
                 if (Check(Token_Type.BOOLEAN)) selector.Single = Convert.ToBoolean(Peek().Value);
                 Advance();
+                comprobar = Consume(Token_Type.COMMA, $"se esperaba , y tenemos {Peek().Value}");
             }
-            comprobar = Consume(Token_Type.COMMA, "se esperaba ,");
             if (CheckValue("Predicate"))
             {
                 Advance();
@@ -424,9 +422,9 @@ namespace Skyrim_Interpreter
                 Console.WriteLine(Peek());
                 selector.Predicate = CreateNode();
             }
+            else { Console.WriteLine($"Es necesario que el selector tenga Predicate y no tiene, en su lugar tiene {Peek().Value}");}
             return selector;
         }
-
         private CardASTNode MeterenRange(CardASTNode card) 
         {
             comprobar = Consume(Token_Type.COLON,"se esperaba :despues de Range");
@@ -441,7 +439,6 @@ namespace Skyrim_Interpreter
             Advance();
             return card;
         }
-
         private CardASTNode Meter(string value,CardASTNode card) 
         {
             bool t = false, n = false , f = false;
@@ -459,13 +456,10 @@ namespace Skyrim_Interpreter
             if (comprobar == null) { return null; }
             return card;
         }
-
         #endregion
-
         #region Make nodos
         //creamos nodos
         private ASTnode CreateNode() {return LogicalNode();}
-
         //&& y ||
         private ASTnode LogicalNode()
         {
@@ -473,13 +467,12 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.AND, Token_Type.LOGIC))
             {
                 Token boolean = Previous();
-                ASTnode right = EqualASTNode();
+                ASTnode right = CreateNode();
                 if (boolean.Type == Token_Type.AND) node = new AndASTNode(node, right);
                 else { node = new OrASTNode(node, right); }
             }
            return node;
         }
-
         // == y !=
         private ASTnode EqualASTNode()
         {
@@ -487,13 +480,12 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.EQUAL,Token_Type.NOT_EQUAL) )
             {
                 Token equality = Previous();
-                ASTnode right = ComparasionASTNode();
+                ASTnode right = CreateNode();
                 if (equality.Value == "==") { node = new EqualASTNode(node, right); }
                 else { node = new NotEqualASTNode(node, right); }
             }
             return node;
         }
-
         // < ,> , <= , >=
         private ASTnode ComparasionASTNode() 
         {
@@ -501,7 +493,7 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.GREATER,Token_Type.GREATER_EQUAL,Token_Type.LESS,Token_Type.LESS_EQUAL))
             {
                 Token comparasion = Previous();
-                ASTnode right = ConcatenationASTNode();
+                ASTnode right = CreateNode();
                 if (comparasion.Value == ">") { node = new ComparationASTNode(node, Token_Type.GREATER, right); }
                 else if (comparasion.Value == ">=") { node = new ComparationASTNode(node, Token_Type.GREATER_EQUAL, right); }
                 else if (comparasion.Value == "<") { node = new ComparationASTNode(node, Token_Type.LESS, right); }
@@ -516,7 +508,7 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.CONCAT))
             {
                 Token concat = Previous();
-                ASTnode right = TermASTNode();
+                ASTnode right = CreateNode();
                 node = new ConcatenationASTNode(node, right);
             }
             return node;
@@ -528,7 +520,7 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.PLUS , Token_Type.MINUS)) 
             {
                 Token term = Previous();
-                ASTnode right = FactorNode();
+                ASTnode right = CreateNode();
                 if (term.Value == "+") { node = new PlusAST(node, right); }
                 else
                 {
@@ -544,7 +536,7 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.DIVIDE,Token_Type.MULTIPLY,Token_Type.MODULUS)) 
             {
                 Token fact = Previous();    
-                ASTnode right = PowerNode();
+                ASTnode right = CreateNode();
                 if (fact.Value == "*") { node = new FactorASTNode(node,Token_Type.MULTIPLY,right); }
                else if (fact.Value == "/") { node = new FactorASTNode(node,Token_Type.DIVIDE,right); }
                else  if (fact.Value == "%") { node = new FactorASTNode(node,Token_Type.MODULUS,right); }
@@ -554,37 +546,38 @@ namespace Skyrim_Interpreter
         //^
         private ASTnode PowerNode() 
         {
-            ASTnode node = AssingWithValue();
+            ASTnode node = AssignationNode();
             while (Match(Token_Type.POWER)) 
             {
                 Token power = Previous();
-                ASTnode right = AssingWithValue();
+                ASTnode right = CreateNode();
                 node = new PowerASTNode(node,right);
-            }
-            return node;
-        }
-        // -= ,+=,*=,/=,%=
-        private ASTnode AssingWithValue()
-        {
-            ASTnode node = AssignationNode();
-            while (CheckValue("-=") || CheckValue("+=") || CheckValue("*=") || CheckValue("/=") || CheckValue("%=")) 
-            {
-                string asigwithvalue = Peek().Value;
-                Advance();
-                ASTnode rigth= AssignationNode();
-                node = new AssgnWithValueASTNode(node,asigwithvalue,rigth);
             }
             return node;
         }
         //=
         private ASTnode AssignationNode() 
         {
-          ASTnode node = ColonNode();
+          ASTnode node = AssingWithValue();
             while (Match(Token_Type.ASSIGN) && Previous().Value == "=")
             {
                 Token assign= Previous();
-                ASTnode right = ColonNode();
+                ASTnode right = CreateNode();
+                GameContext.InputKeyAssign(node,right);
                 node = new AssignASTNode(node,right);
+            }
+            return node;
+        }
+        // -= ,+=,*=,/=,%=
+        private ASTnode AssingWithValue()
+        {
+            ASTnode node = ColonNode();
+            while (CheckValue("-=") || CheckValue("+=") || CheckValue("*=") || CheckValue("/=") || CheckValue("%="))
+            {
+                string asigwithvalue = Peek().Value;
+                Advance();
+                ASTnode rigth = CreateNode();
+                node = new AssgnWithValueASTNode(node, asigwithvalue, rigth);
             }
             return node;
         }
@@ -594,16 +587,9 @@ namespace Skyrim_Interpreter
             ASTnode node = AccessNode();
             while (Match(Token_Type.COLON)) 
             {
-              
                 Token col = Previous();
-                ASTnode right = AccessNode();
-                if (node is IdentifierASTNode ident) 
-                {
-                    if (AssignmentManager.Search(AssignmentManager.Parameters, ident.value)) 
-                    {
-                        
-                    }
-                }
+                ASTnode right = CreateNode();
+                GameContext.InputKeyParameter(node,right);
                 node = new ColonASTNode(node,right);
             }
             return node;
@@ -615,16 +601,12 @@ namespace Skyrim_Interpreter
             while (Match(Token_Type.ACCESS))
             {
                 Token access = Previous();
-                ASTnode right = LambdaASTnode(); 
+                ASTnode right = CreateNode(); 
                 AccessASTNode acc = new AccessASTNode(node,right);
-                if (node is LiteralASTNode literal) { acc.HI = literal.value; }
-                else if (node is AccessASTNode) { acc.HI = "access"; }
-                if (right is LiteralASTNode lit){ acc.HD = lit.value; }
                 node = acc;
             }
             return node;
         }
-
         private ASTnode LambdaASTnode() 
         {
             ASTnode node = UnaryNode();
@@ -636,7 +618,6 @@ namespace Skyrim_Interpreter
             } 
             return node;    
         }
-
         //! , ++, --
         private ASTnode UnaryNode() 
         {
@@ -694,9 +675,9 @@ namespace Skyrim_Interpreter
             {
                 return new CommaASTNode();
             }
-            if (!Check(Token_Type.EOF))
+            if (Match(Token_Type.SEMICOLON)) 
             {
-                return CreateNode();
+                Console.WriteLine("Se encontro un punto y coma ");
             }
            
           return KeywordNode();
@@ -723,7 +704,7 @@ namespace Skyrim_Interpreter
         {
             Console.WriteLine(Peek());  
             BlockASTNode block = new BlockASTNode();
-           
+            IdentifierASTNode colcetion = null;
             if (Peek().Type == Token_Type.IDENTIFIER)
             {
                Advance();
@@ -732,196 +713,26 @@ namespace Skyrim_Interpreter
                     Advance();
                     if (Peek().Type == Token_Type.IDENTIFIER)
                     {
+                        if (!GameContext.IsContainsAssignment(Peek().Value)) { Console.WriteLine("El colection no existe "); return null; }
+                        colcetion = new IdentifierASTNode(Peek().Type,Peek().Value);
                         Advance();
                         Consume(Token_Type.DELIMITIER, "se esperaba una {");
-                        while (Peek().Type != Token_Type.DELIMITIER) { Console.WriteLine(Peek()); block.Block.param.Add(CreateNode()); Console.WriteLine(Peek()); }
+                        while (Peek().Type != Token_Type.DELIMITIER) 
+                        {
+                            block.Block.param.Add(CreateNode()); 
+                            if(Peek().Type == Token_Type.SEMICOLON) Advance();
+                        }
+                        Advance();
+                        Consume(Token_Type.SEMICOLON,$"Se esperaba una ; y en su lugar tenemos{Peek()}");
                     }
-                    else { throw new Exception(); }
+                    else { throw new Exception($"Se esperaba un identifier y tenemos un {Peek().Value}"); }
                 }
-                else{ throw new Exception();}
+                else{ throw new Exception($"Se esperaba un identifier y tenemos un {Peek().Value}");}
             }
-            else{throw new Exception();}
+            else{throw new Exception($"Se esperaba un identifier y tenemos un {Peek().Value}");}
 
-            return new ForASTNode(block);
+            return new ForASTNode(block, colcetion);
         }
         #endregion
-        //--------------------------------------------------------------------------------------------------------------------------
-        //----------------------------------------------------------------------------------------------------------------------------------
-        //public static void MandarPython(string args)
-        //    {
-        //        string pythonScriptPath = @"C:\Python_Programs\PythonApplication1\PythonApplication1\PythonApplication1.py";
-        //string command = $"\"{pythonScriptPath}\" " + args; // Enclose the path in quotes to handle spaces
-
-        //ProcessStartInfo startInfo = new ProcessStartInfo
-        //{
-        //    WindowStyle = ProcessWindowStyle.Hidden,
-        //    RedirectStandardOutput = true,
-        //    UseShellExecute = false, // Keep this false for shell commands
-        //    CreateNoWindow = true,
-        //    FileName = "python.exe", // Specify the Python interpreter
-        //    Arguments = command
-        //};
-
-        //Process process = Process.Start(startInfo);
-        //string result = process.StandardOutput.ReadToEnd();
-        //process.WaitForExit();
-        //Console.WriteLine(result);
-        //    }
-
-        //   public string Word()
-        //   {
-        //      Node n = ART();
-        //      string t =  MakeList(n);
-        //      return t;
-        //   }
-
-         
-        //  public string MakeList(Node root)
-        //  {
-        //    List<(Node,int)> exist = new List<(Node,int)>(); 
-        //    exist.Add((root,root.Children.Count));
-        //    int pivote =0;
-
-        //     while(pivote < exist.Count ){
-            
-        //         Meter(exist[pivote].Item1,  exist );
-                
-        //      pivote ++;
-        //     }
-            
-        //    List<string> s = new List<string>();
-        //    int count=0;
-        //   foreach(var item in exist)
-        //   {
-        //      s.Add(item.Item1.Value +  count  + $"{item.Item1.Children.Count}");
-        //      count++;
-        //   }
-            
-        //    string w = "";
-        //     for(int h = 0 ; h < s.Count;h++)
-        //     {
-        //        w += s[h] + " ";
-        //     }
-
-        //     return w;
-        //  }
-
-        //  private void Meter(Node father, List<(Node,int)> t)
-        //  {
-        //     for(int i = 0 ; i < father.Children.Count;i++)
-        //     {
-        //           t.Add((father.Children[i],father.Children[i].Children.Count));
-        //     }
-        //  }
-
-
-        //Dictionary<string, int> Arit = new Dictionary<string, int>()
-        //{
-        //    { "+", 1 },
-        //    { "-",1 },
-        //    { "*",0 },
-        //    { "/",0 },
-        //    { "%",-1},
-        //    { "^",-1 }  
-        //};
-
-        //public Node ART() 
-        //{
-        //   Node aa = Aritmetics(this.tokens,0,null,null,null); 
-        //   return  aa;
-        //}
-
-
-        //private Node Aritmetics(List<Token> tokens,int count,Node lastNumber,Node lastOperator,Node maxOperator) 
-        //{
-        //    if (count == tokens.Count)
-        //    {
-        //        SonOf(lastNumber,lastOperator);
-        //        return maxOperator;
-        //    }
-
-        //    if (Arit.ContainsKey(tokens[count].Value))
-        //    {
-        //        bool mayor = false;
-        //        Node newOpeator = new Node(tokens[count].Type, tokens[count].Value);
-        //        CompararaConMayor(ref newOpeator,ref maxOperator,ref mayor,ref lastNumber,ref lastOperator);
-        //        if (!mayor)
-        //        {
-        //            CompararConAnterior(ref newOpeator,ref lastOperator,ref lastNumber,ref maxOperator);
-        //        }
-        //     return  Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
-        //    }
-        //    else
-        //    {
-        //        lastNumber = new Node(tokens[count].Type, tokens[count].Value);
-        //     return   Aritmetics(tokens,count += 1,lastNumber,lastOperator,maxOperator);
-        //    }
-        //}
-
-        //private void CompararConAnterior(ref Node newnode,ref Node lastNode,ref Node lastnumber,ref Node max) 
-        //{
-        //    if (lastNode == null)
-        //    {
-        //        SonOf(lastnumber, newnode);
-        //        lastNode = newnode;
-        //        return;
-        //    }
-        //    else if (Arit[newnode.Value] >= Arit[lastNode.Value])
-        //    {
-        //        SonOf(lastnumber,lastNode);
-        //        SonOf(lastNode,newnode);
-
-        //        if (max.Children.Contains(lastNode))
-        //        {
-        //            Quitar(lastNode, max);
-        //            SonOf(newnode, max);
-        //        }
-        //    }
-        //    else if (Arit[newnode.Value] < Arit[lastNode.Value])
-        //    {
-        //        SonOf(lastnumber,newnode);
-        //        SonOf(newnode,lastNode);
-        //    }
-        //    lastNode = newnode;
-        //}
-
-        //private void CompararaConMayor(ref Node newnode,ref Node max,ref bool m,ref Node lastnumber,ref Node lastnode) 
-        //{
-        //    if (max == null)
-        //    {
-        //        SonOf(lastnumber, newnode);
-        //        max = newnode;
-        //        m = true;  
-        //        lastnode= newnode;   
-        //        return;
-        //    }
-        //    else if (Arit[max.Value] <= Arit[newnode.Value])
-        //    {
-        //        SonOf(max,newnode);
-        //        SonOf(lastnumber,lastnode);
-        //        max= newnode;
-        //        m = true;
-        //        lastnode = newnode;
-        //    }
-        //}
-
-        //private void SonOf(Node son,Node father) 
-        //{
-        //    father.Children.Add(son);
-        //}
-
-        //private void Quitar(Node son,Node father) 
-        //{
-        //    for (int i = 0; i < father.Children.Count; i++)
-        //    {
-        //        if (father.Children[i].Equals(son))
-        //        {
-        //            father.Children.RemoveAt(i);
-        //        }
-
-        //    }
-        //}
-
     }
-
 }

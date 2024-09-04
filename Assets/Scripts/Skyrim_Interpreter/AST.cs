@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Skyrim_Interpreter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,7 +9,11 @@ using System.Threading.Tasks;
 
 namespace Skyrim_Interpreter
 {
-    public abstract class ASTnode { public abstract object Evaluar(Context context,Targets targets);  }
+    public abstract class ASTnode 
+    {
+        public abstract object Evaluar(Context context, Targets targets);
+        public abstract object Evaluar();
+    }
     public class ASTnodeTree : ASTnode
     {
       public List<ASTnode> children;
@@ -34,6 +39,10 @@ namespace Skyrim_Interpreter
             }
             return results;
         }
+        public override object Evaluar()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class PlusAST : ASTnode
@@ -48,13 +57,17 @@ namespace Skyrim_Interpreter
             RightChild = right;
         }
 
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar() 
         {
-            var left = LeftChild.Evaluar( context, targets);
-            var right = RightChild.Evaluar( context,targets);
+            var left = LeftChild.Evaluar();
+            var right = RightChild.Evaluar();
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
 
+        public override object Evaluar(Context context, Targets targets)
+        {
+            throw new NotImplementedException();
+        }
     }
     // Variables
     public class IdentifierASTNode : ASTnode
@@ -68,7 +81,11 @@ namespace Skyrim_Interpreter
             this.type = type;   
             this.value = value;
         }
-        public override object Evaluar(Context context, Targets targets) { return value; }
+        public override object Evaluar() { return value; }
+        public override object Evaluar(Context context, Targets targets)
+        {
+            return null;
+        }
     }
 
     public class MinusASTNode : ASTnode
@@ -84,14 +101,15 @@ namespace Skyrim_Interpreter
             RightChild = right;
         }
 
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar()
         {
-            var left = LeftChild.Evaluar( context,  targets);
-            var right = RightChild.Evaluar( context,  targets);
-            return Ayudante.EvaluateBinary(left,this.type,right);
+            var left = LeftChild.Evaluar();
+            var right = RightChild.Evaluar();
+            return Ayudante.EvaluateBinary(left, this.type, right);
         }
-    }
+        public override object Evaluar(Context context, Targets targets) { return null; }
         
+    } 
     public class Node : ASTnode
     {
         public Token_Type type { get; set; }
@@ -109,7 +127,10 @@ namespace Skyrim_Interpreter
         {
             return Value;
         }
-
+        public override object Evaluar()
+        {
+            return null;
+        }
     }
     public class PowerASTNode : ASTnode
     {
@@ -123,13 +144,13 @@ namespace Skyrim_Interpreter
             this.Pow = pow;
         }
 
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-            var left = Number.Evaluar( context, targets);
-            var right = Pow.Evaluar(context, targets);
+            var left = Number.Evaluar();
+            var right = Pow.Evaluar();
             return Ayudante.EvaluateBinary(left, this.type, right);
         }
-
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
     public class AndASTNode : ASTnode
     {
@@ -140,17 +161,19 @@ namespace Skyrim_Interpreter
         public AndASTNode(ASTnode left, ASTnode rigth)
         {
             this.left = left;
-           
+
 
             this.right = rigth;
         }
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar()
         {
-            var left = this.left.Evaluar( context,  targets);
-            var right = this.right.Evaluar( context, targets);
-            return Ayudante.EvaluateBinary(left,this.type,right);
+            var left = this.left.Evaluar();
+            var right = this.right.Evaluar();
+            return Ayudante.EvaluateBinary(left, this.type, right);
         }
 
+        public override object Evaluar(Context context, Targets targets) { return null; }
+        
     }
     public class OrASTNode : ASTnode
     {
@@ -166,12 +189,13 @@ namespace Skyrim_Interpreter
             this.right = right;
         }
 
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-            var left = this.left.Evaluar( context, targets);
-            var right = this.right.Evaluar( context,  targets);
+            var left = this.left.Evaluar();
+            var right = this.right.Evaluar();
             return Ayudante.EvaluateBinary(left, this.type, right);
         }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class NotEqualASTNode : ASTnode
@@ -187,13 +211,13 @@ namespace Skyrim_Interpreter
             Right = right;
         }
 
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar() 
         {
-            var left = this.Left.Evaluar( context,  targets);
-            var right = this.Right.Evaluar( context,  targets);
+            var left = this.Left.Evaluar( );
+            var right = this.Right.Evaluar( );
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
-
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class EqualASTNode : ASTnode
@@ -203,18 +227,18 @@ namespace Skyrim_Interpreter
         public ASTnode Right { get; private set; }
 
         public EqualASTNode(ASTnode left, ASTnode right)
-
         {
             Left = left;
             Right = right;
         }
 
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar() 
         {
-            var left = this.Left.Evaluar( context,  targets);
-            var right = this.Right.Evaluar(context,  targets);
+            var left = this.Left.Evaluar();
+            var right = this.Right.Evaluar();
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class AssignASTNode : ASTnode
@@ -240,7 +264,8 @@ namespace Skyrim_Interpreter
                return right;
             }
             throw new InvalidOperationException("Invalid types for assignement");
-        } 
+        }
+        public override object Evaluar() { throw new NotImplementedException(); }
     }
 
     public class AssgnWithValueASTNode : ASTnode
@@ -258,6 +283,7 @@ namespace Skyrim_Interpreter
         {
             throw new NotImplementedException();
         }
+        public override object Evaluar() { return null; }
     }
 
     public class UnaryASTNode : ASTnode
@@ -275,6 +301,7 @@ namespace Skyrim_Interpreter
             var son = this.Son.Evaluar( context, targets);
             return Ayudante.EvaluateUnary(this.value,son);
         }
+        public override object Evaluar() { return null; }
     }
 
     public class ColonASTNode : ASTnode 
@@ -288,44 +315,46 @@ namespace Skyrim_Interpreter
             this.right = right;
         }
 
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-           var left = this.left.Evaluar( context,  targets);
-            var right = this.right.Evaluar( context,  targets);
+           var left = this.left.Evaluar( );
+            var right = this.right.Evaluar();
             if (left is IdentifierASTNode identifier) 
             {
                
             }
             throw new InvalidOperationException("Invalid types for colon");
         }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class Params : ASTnode
     {
         public List<ASTnode> param { get; set; }
         public Params() => param = new List<ASTnode>();
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
             var results = new List<object>();
             for (int i = 0; i < param.Count; i++)
             {
-                var item = param[i].Evaluar(context,  targets);
+                var item = param[i].Evaluar();
                 results.Add(item);  
             }
             return results;
         }
-
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class ConditionalASTNode : ASTnode
     {
         public ASTnode condicion { get; set; }
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-            var condtion = this.condicion.Evaluar(context,targets);
+            var condtion = this.condicion.Evaluar();
             if (condtion is bool) { return (bool)condtion; }
             else { throw new InvalidOperationException("Invalid type for condition evalue"); }
         }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class BlockASTNode : ASTnode
@@ -353,21 +382,26 @@ namespace Skyrim_Interpreter
             }
             return results;
         }
+        public override object Evaluar()
+        {
+            return null;
+        }
     }
 
     public class CommaASTNode : ASTnode 
     {
-       public Token_Type type = Token_Type.COMMA;
+        public Token_Type type = Token_Type.COMMA;
         public string value = ",";
-        public override object Evaluar(Context context, Targets targets) { return value; }
+        public override object Evaluar() { return value; }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
-    public class AccessASTNode :ASTnode
+    public class AccessASTNode : ASTnode
     {
         public ASTnode left { get; set; }
         public ASTnode right { get; set; }
-       
-        public string HI { get; set;}  
+
+        public string HI { get; set; }
         public string HD { get; set; }
 
         public AccessASTNode(ASTnode left, ASTnode right)
@@ -378,31 +412,32 @@ namespace Skyrim_Interpreter
         //ejemplos a evaluar context.hand.power.
         public override object Evaluar(Context context, Targets targets)
         {
-            var left = this.left.Evaluar( context,  targets);
-            var right = this.right.Evaluar( context,  targets);
+            var left = this.left.Evaluar(context, targets);
+            var right = this.right.Evaluar(context, targets);
 
-            if (left is IdentifierASTNode identifier1 && right is IdentifierASTNode identifier2 && identifier1.value == "context") 
+            if (left is IdentifierASTNode identifier1 && right is IdentifierASTNode identifier2 && identifier1.value == "context")
             {
-                Ayudante.ReturnList(identifier1,identifier2,context);
+                Ayudante.ReturnList(identifier1, identifier2, context);
             }
-            if (left is List<Cards> a && right is IdentifierASTNode ide) 
+            if (left is List<Cards> a && right is IdentifierASTNode ide)
             {
-                List<Cards> newlist = a; 
-                return Ayudante.ReturnChangeAux(newlist,ide.value,ide.Parameters,context,targets);
+                List<Cards> newlist = a;
+                return Ayudante.ReturnChangeAux(newlist, ide.value, ide.Parameters, context, targets);
             }
-            throw new NotImplementedException();    
+            throw new NotImplementedException();
         }
-
+         public override object Evaluar() { return null; }
     }
     public class ActionASTNode : ASTnode
     {
-        public List<ASTnode> parametros { get; set; }
+        public string Target { get; set; }
+        public string context { get; set; }
         public List<ASTnode> actions { get; set; }
         
         public LambdaForAction Lambda {get; set;}
         public ActionASTNode()
         {
-            parametros= new List<ASTnode>();    
+             
             actions= new List<ASTnode>();   
         }
 
@@ -410,7 +445,7 @@ namespace Skyrim_Interpreter
         {
             throw new NotImplementedException();
         }
-
+        public override object Evaluar() { throw new NotImplementedException(); }
     }
     public class EffectASTNode : ASTnode    
     {
@@ -433,6 +468,7 @@ namespace Skyrim_Interpreter
 
             return null;
         }
+        public override object Evaluar(){throw new NotImplementedException();}
     }
 
     public class ComparationASTNode : ASTnode
@@ -452,6 +488,7 @@ namespace Skyrim_Interpreter
             var right = this.right.Evaluar( context,  targets);
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
+        public override object Evaluar() { throw new NotImplementedException(); }
     }
 
     public class ConcatenationASTNode : ASTnode
@@ -470,6 +507,7 @@ namespace Skyrim_Interpreter
            var right = this.right.Evaluar( context,  targets);
             return Ayudante.EvaluateBinary(left,this.type,right); 
         }
+        public override object Evaluar() { throw new NotImplementedException(); }
     }
 
     public class FactorASTNode : ASTnode
@@ -483,13 +521,13 @@ namespace Skyrim_Interpreter
             this.leftchild = leftchild;
             this.rightchild = rightchild;
         }
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-            var left = leftchild.Evaluar( context,  targets); 
-            var right = rightchild.Evaluar( context, targets);
+            var left = leftchild.Evaluar(); 
+            var right = rightchild.Evaluar();
             return Ayudante.EvaluateBinary(left,this.type,right);
         }
-
+        public override object Evaluar(Context context,Targets targets) { throw new NotImplementedException(); }
     }
 
     public class LiteralASTNode : ASTnode   
@@ -502,7 +540,7 @@ namespace Skyrim_Interpreter
             this.value = value; 
         }
 
-        public override object Evaluar(Context context, Targets targets) 
+        public override object Evaluar() 
         {
             if (Type == Token_Type.NUMBER)
             {
@@ -518,7 +556,7 @@ namespace Skyrim_Interpreter
             }
              return null;
         }
-
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException(); }
     }
 
     public class GroupingASTNode : ASTnode
@@ -529,9 +567,11 @@ namespace Skyrim_Interpreter
             this.groupnode = groupnode; 
         }
 
-        public override object Evaluar(Context context, Targets targets)
+        public override object Evaluar()
         {
-            return groupnode.Evaluar( context,  targets);
+            return groupnode.Evaluar();
+        }
+        public override object Evaluar(Context context, Targets targets) { throw new NotImplementedException();
         }
     }
     public class WhileASTNode  : ASTnode
@@ -569,18 +609,21 @@ namespace Skyrim_Interpreter
             }
             return null;
         }
-
+        public override object Evaluar(){return null;}
     }
 
     public class ForASTNode : ASTnode
     {
+
+        public IdentifierASTNode colection { get; set; }
         public BlockASTNode block { get; set; }
-        public ForASTNode(BlockASTNode block)
+        public ForASTNode(BlockASTNode block,IdentifierASTNode colection)
         {
             this.block = block; 
+            this.colection = colection; 
         }
         public override object Evaluar(Context context, Targets targets)
-    {
+        {
         var results = new List<object>();
         var loopVariable = new Dictionary<string, object>();
 
@@ -659,7 +702,7 @@ namespace Skyrim_Interpreter
 
           return results;
         }
-
+        public override object Evaluar(){return null;}
     }
 
     public class CardASTNode  : ASTnode
@@ -712,7 +755,10 @@ namespace Skyrim_Interpreter
             newcard.OnActivation = effect;
             return newcard;
         }
-
+        public override object Evaluar()
+        {
+            return null;
+        }
     }
 
     public class EffectCardNode : ASTnode
@@ -736,6 +782,10 @@ namespace Skyrim_Interpreter
             return neweffect;
         }
 
+        public override object Evaluar()
+        {
+            throw new NotImplementedException();
+        }
     }
     public class SelectorCardNode : ASTnode
     {
@@ -764,6 +814,10 @@ namespace Skyrim_Interpreter
             
             return newselector;
         }
+        public override object Evaluar()
+        {
+            return null;
+        }
     }
 
     public class LambdaForAction  :ASTnode
@@ -778,7 +832,12 @@ namespace Skyrim_Interpreter
         }
         public override object Evaluar(Context context, Targets targets)
         {
-            throw new NotImplementedException();
+            return null;
+        }
+
+        public override object Evaluar() 
+        {
+            return null;
         }
     }
     public class LambdaASTNode : ASTnode 
@@ -791,7 +850,6 @@ namespace Skyrim_Interpreter
                 Left = left;    
                 Right = right;
         }
-
         public override object Evaluar(Context context, Targets targets)
         {
             var left = Left.Evaluar(context, targets);
@@ -811,7 +869,12 @@ namespace Skyrim_Interpreter
                 throw new InvalidOperationException("Invalid types for lambda evaluation");
             }
         }
+        public override object Evaluar()
+        {
+            return null;
+        }
 
     }
 
 }
+

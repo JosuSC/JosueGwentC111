@@ -237,5 +237,22 @@ namespace Skyrim_Interpreter
                 }
             }
         }
+
+        public static void MakeEffect(string name,string Zonaaatacar,ASTnode predicate,) 
+        {
+            Effect neweffect = new Effect();
+            neweffect.Name = name;
+            neweffect.destination= Zonaaatacar; 
+
+
+        }
+
+        public static object FindTargets(string name,Context context) 
+        {
+            if (GameContext.IsContainsEffcet(name)) 
+            {
+               
+            }
+        }
     }
 } 

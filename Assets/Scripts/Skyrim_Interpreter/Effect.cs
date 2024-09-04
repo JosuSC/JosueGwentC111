@@ -9,14 +9,21 @@ namespace Skyrim_Interpreter
     public class Effect
     {
         public string Name { get; set; }
-        public List<object> Params { get; set; }
+        public Targets Targets { get; set; }    
+        public Context Context { get; set; }    
+        public string destination { get; set; }
+
         public Selector selector { get; set; }
         public Effect()
         {
-            Params= new List<object>(); 
+           
         }
-    }
+        public void DoIt(Targets targets,Context context) 
+        {
 
+        }
+
+    }
     public class Selector 
     {
         public string Source { get; set;}
